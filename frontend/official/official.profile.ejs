@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - Voice Municipal Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="/official/officialStyles/officialStyles.css" rel="stylesheet">
+    <script src="/official/officialJS/official.profile.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="staff-info">
+                    <div class="staff-logo">👷</div>
+                    <div class="staff-details">
+                        <h3 id="staffName"></h3>
+                        <p id="staffDept"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="#my-tasks" class="nav-item active">
+                    <i class="fas fa-tasks"></i>
+                    My Tasks
+                </a>
+                <a href="#assigned-complaints" class="nav-item">
+                    <i class="fas fa-clipboard-list"></i>
+                    Assigned Complaints
+                </a>
+                <a href="#field-updates" class="nav-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    Field Updates
+                </a>
+                <a href="#work-history" class="nav-item">
+                    <i class="fas fa-history"></i>
+                    Work History
+                </a>
+                <a href="#resources" class="nav-item">
+                    <i class="fas fa-tools"></i>
+                    Resources
+                </a>
+                <a href="#voice-reports" class="nav-item">
+                    <i class="fas fa-microphone"></i>
+                    Voice Reports
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1>Staff Dashboard</h1>
+                </div>
+                
+                <div class="header-right">
+                    <div class="task-counter">
+                        <i class="fas fa-tasks"></i>
+                        5 Active Tasks
+                    </div>
+                    
+                    <div class="user-profile">
+                        <div class="user-avatar">S</div>
+                        <span>Staff</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Quick Stats -->
+                <div class="quick-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon assigned">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">Assigned Tasks</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon progress">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">In Progress</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon completed">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-number">15</div>
+                        <div class="stat-label">Completed Today</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon overdue">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-number">1</div>
+                        <div class="stat-label">Overdue</div>
+                    </div>
+                </div>
+
+                <!-- My Tasks -->
+                <div class="my-tasks">
+                    <div class="tasks-header">
+                        <h2>Department Complaints</h2>
+                        <span id="tasksCount">Loading...</span>
+                    </div>
+                    <div class="tasks-content" id="mainContent">
+                        <!-- Complaints will be loaded here dynamically via JavaScript -->
+                        <div style="padding: 40px; text-align: center; color: #666;">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                            <p style="font-size: 1.1rem;">Loading complaints...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Work Progress -->
+                <div class="work-progress">
+                    <div class="progress-header">
+                        <h3>Work Progress</h3>
+                        <span>Performance Metrics</span>
+                    </div>
+                    
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>Daily Target</span>
+                            <span>12/15 tasks</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill daily" style="width: 80%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>Weekly Target</span>
+                            <span>68/75 tasks</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill weekly" style="width: 91%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>Monthly Target</span>
+                            <span>245/300 tasks</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill monthly" style="width: 82%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <div class="action-card" onclick="reportIssue()">
+                        <div class="action-icon">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="action-title">Reported Issues</div>
+                        <div class="action-description">Report problems or obstacles</div>
+                    </div>
+                    
+                    <div class="action-card" onclick="requestSupport()">
+                        <div class="action-icon">
+                            <i class="fas fa-hands-helping"></i>
+                        </div>
+                        <div class="action-title">Requested Support</div>
+                        <div class="action-description">Make Sure they Get help from supervisors</div>
+                    </div>
+                    
+                    <div class="action-card" onclick="updateLocation()">
+                        <div class="action-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                    
+                        <div class="action-description">Share current work location</div>
+                    </div>
+                    
+                    <div class="action-card" onclick="voiceUpdate()">
+                        <div class="action-icon">
+                            <i class="fas fa-microphone"></i>
+                        </div>
+                        <div class="action-title">Voice Update</div>
+                        <div class="action-description">Record progress update</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    
+</body>
+</html>

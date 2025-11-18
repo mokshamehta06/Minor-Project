@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Municipal Services</title>
+    <link rel="stylesheet" href="/styles/common.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="logo-icon">🔐</div>
+            <h1>Admin Login</h1>
+            <p>Administrative access only</p>
+        </div>
+
+        <form class="auth-form" onsubmit="event.preventDefault(); loginDetails();">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter admin username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter admin password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Login as Admin</button>
+        </form>
+
+        <div class="auth-footer">
+            <a href="/user/login">Login as User</a> | <a href="/official/login">Login as Official</a>
+        </div>
+    </div>
+</body>
+<script>
+    async function loginDetails() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        console.log('Attempting login with username:', username);
+
+        try {
+            const response = await fetch('/admin/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username: username, password: password })
+            });
+
+            console.log('Response status:', response.status);
+            const result = await response.json();
+            console.log('Response from server:', result);
+
+            if (response.ok) {
+                alert('Admin login successful!');
+                console.log('Login successful, redirecting...');
+                window.location.href = '/admin/register';
+            } else {
+                console.error('Login failed:', result);
+                alert('Login failed: ' + (result.error || result.message || 'Invalid credentials'));
+            }
+        } catch (error) {
+            console.error('Error during login request:', error);
+            alert('An error occurred during login. Please try again. Error: ' + error.message);
+        }
+    }
+</script>
+</html>

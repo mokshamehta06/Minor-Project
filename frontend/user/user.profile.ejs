@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Portal - Municipal Services</title>
+    <link rel="stylesheet" href="/user/styles/citizen.css"> 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+</head>
+<body>
+    <header class="top-bar">
+        <div class="top-bar-left">
+            <div class="logo">
+                <i class="fas fa-city"></i>
+                <span>Citizen Portal</span>
+            </div>
+        </div>
+        
+        </div>
+        <div class="top-bar-right">
+            <div class="language-switcher">
+                <select id="languageSelect">
+                    <option value="en">English</option>
+                    <option value="es">Hindi</option>
+                </select>
+            </div>
+            <div class="notifications icon-btn" onclick="toggleNotifications()">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge">3</span>
+            </div>
+            <div class="profile-menu" onclick="toggleProfileMenu()">
+                <img src="https://via.placeholder.com/40x40/4F46E5/FFFFFF?text=JD" alt="Profile" class="profile-avatar">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="left-rail">
+            <div class="quick-actions">
+                <h3>Quick Actions</h3>
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="openReportIssue()">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Report Issue</span>
+                    </button>
+                    <button class="action-btn" onclick="openTrackComplaint()">
+                        <i class="fas fa-search"></i>
+                        <span>Track Complaint</span>
+                    </button>
+                    <button class="action-btn" onclick="openPayBill()">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Pay Bill</span>
+                    </button>
+                    <button class="action-btn" onclick="openRequestCertificate()">
+                        <i class="fas fa-certificate"></i>
+                        <span>Request Certificate</span>
+                    </button>
+                    <button class="action-btn" onclick="openBookAppointment()">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Book Appointment</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="voice-assistant">
+                <h4>Voice Assistant</h4>
+                <div class="voice-controls">
+                    <button class="mic-btn" id="micBtn" onclick="toggleVoiceRecording()">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <div class="voice-status">
+                        <span id="voiceStatus">Click to speak</span>
+                    </div>
+                    <button class="tts-toggle" onclick="toggleTTS()">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                </div>
+                <div class="live-transcript" id="liveTranscript">
+                    <p>Voice transcript will appear here...</p>
+                </div>
+            </div>
+
+            </aside>
+
+        <main class="main-content">
+            <section class="smart-start">
+                
+                <div class="personalized-cards">
+                    <div class="smart-card alert-card">
+                        <div class="card-header">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <h3>My Area Problems </h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="alert-item urgent">
+                                <span class="alert-dot"></span>
+                                <div>
+                                    <p>Water service interruption</p>
+                                    <small>Main St. - Today 2-6 PM</small>
+                                </div>
+                            </div>
+                            <div class="alert-item info">
+                                <span class="alert-dot"></span>
+                                <div>
+                                    <p>Road construction</p>
+                                    <small>Oak Ave. - Next week</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="smart-card bills-card">
+                        <div class="card-header">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <h3>Bills & Dues</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="bill-item">
+                                <span>Water Bill</span>
+                                <span class="amount due">$89.50</span>
+                            </div>
+                            <div class="bill-item">
+                                <span>Property Tax</span>
+                                <span class="amount paid">$1,250.00</span>
+                            </div>
+                            <button class="pay-now-btn">Pay Now</button>
+                        </div>
+                    </div>
+
+                    <div class="smart-card requests-card">
+                        <div class="card-header">
+                            <i class="fas fa-clipboard-list"></i>
+                            <h3>My Recent Complaints</h3>
+                        </div>
+                        <div class="card-content">
+                            <p style="color: #64748b;">Loading complaints...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- My Complaints Section -->
+            <section class="my-complaints-section" style="margin-top: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="color: var(--dark-blue); font-size: 1.5rem;">All My Complaints</h2>
+                    <button onclick="openTrackComplaint()" style="padding: 0.5rem 1rem; background: var(--primary-blue); color: white; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-list"></i> View All
+                    </button>
+                </div>
+                <div id="all-complaints-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+                    <!-- Complaints will be loaded here -->
+                </div>
+            </section>
+
+            </main>
+    </div>
+
+    <div id="modalOverlay" class="modal-overlay" onclick="closeModal()"></div>
+    
+    
+    <div id="profileMenu" class="profile-menu-dropdown">
+        <a href="#"><i class="fas fa-user"></i> My Profile</a>
+        
+        <a href="#" onclick="openSettingsModal()"><i class="fas fa-cog"></i> Settings</a>
+        
+        <a href="#"><i class="fas fa-history"></i> Activity History</a>
+        <a href="#"><i class="fas fa-question-circle"></i> Help & Support</a>
+        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <div id="settings-modal" class="modal">
+        <span class="close-btn" onclick="closeSettingsModal()">&times;</span>
+        <h3 style="margin-bottom: 20px; color: #1e3a8a;">Settings</h3>
+        
+        <div class="accessibility-controls" style="border: none; padding: 0; box-shadow: none;">
+            <h4>Accessibility</h4>
+            <div class="control-group">
+                <button class="accessibility-btn" onclick="toggleHighContrast()">
+                    <i class="fas fa-adjust"></i>
+                    High Contrast
+                </button>
+                <button class="accessibility-btn" onclick="increaseTextSize()">
+                    <i class="fas fa-text-height"></i>
+                    Text Size +
+                </button>
+                <button class="accessibility-btn" onclick="toggleScreenReader()">
+                    <i class="fas fa-eye"></i>
+                    Screen Reader
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="report-issue-modal" class="modal">
+        <form id="report-issue-form" class="modal-form">
+            <span class="close-btn" onclick="closeReportModal()">&times;</span>
+            <h3 style="margin-bottom: 20px; color: #1e3a8a;">Report an Issue</h3>
+
+            <label for="issue-category">Category *</label>
+            <select id="issue-category" required>
+                <option value="">Select Category</option>
+                <option value="Water Supply">Water Supply</option>
+                <option value="Electricity">Electricity</option>
+                <option value="Road Maintenance">Road Maintenance</option>
+                <option value="Sanitation">Sanitation</option>
+                <option value="Public Safety">Public Safety</option>
+            </select>
+
+            <label for="issue-department">Department *</label>
+            <select id="issue-department" required>
+                <option value="">Select Department</option>
+                <option value="Water Supply">Water Supply</option>
+                <option value="Electricity">Electricity</option>
+                <option value="Road Maintenance">Road Maintenance</option>
+                <option value="Public Health">Public Health</option>
+                <option value="Sanitation">Sanitation</option>
+            </select>
+
+            <label for="issue-description">Description *</label>
+            <textarea id="issue-description" required rows="4"></textarea>
+
+            <label for="issue-image">Image URL (Optional)</label>
+            <input type="url" id="issue-image" placeholder="https://example.com/image.jpg">
+
+            <label for="issue-pincode">Pincode *</label>
+            <input type="text" id="issue-pincode" required value="<%= user.Pincode %>">
+
+            <label for="issue-state">State *</label>
+            <input type="text" id="issue-state" required value="<%= user.State %>">
+
+            <label for="issue-city">City *</label>
+            <input type="text" id="issue-city" required value="<%= user.City %>">
+
+            <label for="issue-address">Address Line (Optional)</label>
+            <input type="text" id="issue-address" value="<%= user.Address_Line || '' %>">
+
+            <button type="mytype" id="submit-complaint-btn" onclick="submitComplaint(event)">Submit Complaint</button>
+        </form>
+    </div>
+
+<script src="/user/js/citizen.js"></script>
+</body>
+</html>

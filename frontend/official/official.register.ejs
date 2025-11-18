@@ -1,0 +1,141 @@
+<!-- // +-------------------+--------------+------+-----+---------+----------------+
+// | Field             | Type         | Null | Key | Default | Extra          |
+// +-------------------+--------------+------+-----+---------+----------------+
+// | official_id       | bigint       | NO   | PRI | NULL    | auto_increment |
+// | First_name        | varchar(40)  | NO   |     | NULL    |                |
+// | Last_name         | varchar(40)  | NO   |     | NULL    |                |
+// | Email             | varchar(100) | NO   | UNI | NULL    |                |
+// | Phone             | varchar(15)  | NO   | UNI | NULL    |                |
+// | Password_hash     | varchar(255) | NO   |     | NULL    |                |
+// | Login_credentials | varchar(50)  | NO   | UNI | NULL    |                |
+// | department_id     | bigint       | NO   | MUL | NULL    |                |
+// +-------------------+--------------+------+-----+---------+----------------+
+// above is official table structure -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Official Registration - Municipal Services</title>
+    <link rel="stylesheet" href="/styles/common.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .auth-container {
+            max-width: 600px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="logo-icon">👷</div>
+            <h1>Official Registration</h1>
+            <p>Register a new official account</p>
+        </div>
+
+        <form class="auth-form" onsubmit="event.preventDefault(); registerDetails();">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="First_name">First Name</label>
+                    <input type="text" id="First_name" name="First_name" placeholder="Enter first name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="Last_name">Last Name</label>
+                    <input type="text" id="Last_name" name="Last_name" placeholder="Enter last name" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="Email" placeholder="Enter official email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Phone">Phone Number</label>
+                <input type="tel" id="Phone" name="Phone" placeholder="Enter phone number" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Login_credentials">Login Credentials</label>
+                <input type="text" id="Login_credentials" name="Login_credentials" placeholder="Create unique login ID" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Password">Password</label>
+                <input type="password" id="Password" name="Password" placeholder="Create a password (min 6 characters)" required>
+            </div>
+
+            <div class="form-group">
+                <label for="department_id">Department ID</label>
+                <input type="number" id="department_id" name="department_id" placeholder="Enter department ID" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Register Official</button>
+        </form>
+
+        <div class="auth-footer">
+            <a href="/official/login">Back to Official Login</a>
+        </div>
+    </div>
+</body>
+<script>
+    async function registerDetails() {
+        const firstName = document.getElementById('First_name').value.trim();
+        const lastName = document.getElementById('Last_name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('Password').value.trim();
+        const phone = document.getElementById('Phone').value.trim();
+        const loginCredentials = document.getElementById('Login_credentials').value.trim();
+        const departmentId = document.getElementById('department_id').value.trim(); 
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            alert('Please enter a valid email address.');
+            return;
+        }
+        if (password.length < 6) {
+            alert('Password must be at least 6 characters long.');          
+            return;
+        }
+        const data = {
+            First_name: firstName,
+            Last_name: lastName,
+            Email: email,
+            Password: password,
+            Phone: phone,
+            Login_credentials: loginCredentials,
+            department_id: departmentId
+        };  
+        try{
+            const response = await fetch('http://localhost:3000/official/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            console.log('Response from server:', result);
+            if(response.ok){
+                window.location.href = '/official/login';
+            }else{
+                alert('Registration failed: ' + result.error);
+            }
+            console.log('Registration request sent:', data);
+        }catch(error){
+            console.error('Error during registration request:', error);
+        }
+    }
+</script>
+</html> 

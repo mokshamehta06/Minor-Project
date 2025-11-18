@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login - Municipal Services</title>
+    <link rel="stylesheet" href="/styles/common.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="logo-icon">👤</div>
+            <h1>User Login</h1>
+            <p>Welcome back! Please login to your account</p>
+        </div>
+
+        <form class="auth-form" onsubmit="event.preventDefault(); loginDetails();">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+
+        <div class="auth-footer">
+            Don't have an account? <a href="/user/register">Register here</a>
+        </div>
+    </div>
+</body>
+<script>
+    async function loginDetails() {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            alert('Please enter a valid email address.');
+            return;
+        }
+        if (password.length < 6) {
+            alert('Password must be at least 6 characters long.');
+            return;
+        }
+        const data = {
+            Email: email,
+            Password: password
+        };
+
+        try{
+            const response = await fetch('/user/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            console.log('Response from server:', result);
+
+            if(response.ok){
+                console.log('Login successful, redirecting...');
+                window.location.href = '/user/profile/' + result.user.user_id;
+            }else{
+                alert('Login failed: ' + (result.error || 'Unknown error'));
+            }
+        }catch(error){
+            console.error('Error during login request:', error);
+            alert('An error occurred during login. Please try again.');
+        }
+    }
+</script>
+</html>
