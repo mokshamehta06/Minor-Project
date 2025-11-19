@@ -8,7 +8,7 @@ const { getOfficialProfile } = require('../controllers/official.controllers/offi
 const {isOfficialAuthenticated} = require('../middlewares/official.auth');
 const {loginAdmin} = require('../controllers/admin.controller/admin.login.controller');
 const {isAdminAuthenticated} = require('../middlewares/admin.auth');
-const {getWorkersForOfficial} = require('../controllers/official.controllers/official.getWorkers.controller')
+const {getWorkersForOfficial, addWorker, assignWorker} = require('../controllers/official.controllers/official.getWorkers.controller')
 router.post('/register',isAdminAuthenticated, registerOfficial);
 router.get('/register',isAdminAuthenticated, (req, res) => {
     res.render('official/official.register.ejs');
@@ -23,4 +23,6 @@ router.get('/profile', isOfficialAuthenticated, (req, res) => {
 router.get('/profile/data', isOfficialAuthenticated, getOfficialProfile);
 router.post('/login', loginOfficial);
 router.get('/getWorkers', isOfficialAuthenticated, getWorkersForOfficial);
+router.post('/addWorker', isOfficialAuthenticated, addWorker);
+router.post('/assignWorker', isOfficialAuthenticated, assignWorker);
 module.exports = router;

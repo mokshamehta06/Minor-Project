@@ -22,7 +22,7 @@
             <div class="language-switcher">
                 <select id="languageSelect">
                     <option value="en">English</option>
-                    <option value="es">Hindi</option>
+                    <option value="hi">हिन्दी</option>
                 </select>
             </div>
             <div class="notifications icon-btn" onclick="toggleNotifications()">
@@ -49,18 +49,18 @@
                         <i class="fas fa-search"></i>
                         <span>Track Complaint</span>
                     </button>
-                    <button class="action-btn" onclick="openPayBill()">
+                    <!-- <button class="action-btn" onclick="openPayBill()">
                         <i class="fas fa-credit-card"></i>
                         <span>Pay Bill</span>
-                    </button>
-                    <button class="action-btn" onclick="openRequestCertificate()">
+                    </button> -->
+                    <!-- <button class="action-btn" onclick="openRequestCertificate()">
                         <i class="fas fa-certificate"></i>
                         <span>Request Certificate</span>
-                    </button>
-                    <button class="action-btn" onclick="openBookAppointment()">
+                    </button> -->
+                    <!-- <button class="action-btn" onclick="openBookAppointment()">
                         <i class="fas fa-calendar-alt"></i>
                         <span>Book Appointment</span>
-                    </button>
+                    </button> -->
                 </div>
             </div>
 
@@ -193,54 +193,119 @@
         </div>
     </div>
 
+<div id="report-issue-modal" class="modal">
+    <form id="report-issue-form" class="modal-form" enctype="multipart/form-data">
+        <span class="close-btn" onclick="closeReportModal()">&times;</span>
+        <h3 style="margin-bottom: 20px; color: #1e3a8a;">Report an Issue</h3>
 
-    <div id="report-issue-modal" class="modal">
-        <form id="report-issue-form" class="modal-form">
-            <span class="close-btn" onclick="closeReportModal()">&times;</span>
-            <h3 style="margin-bottom: 20px; color: #1e3a8a;">Report an Issue</h3>
+        <label for="issue-category">Category *</label>
+        <select id="issue-category" required>
+            <option value="">Select Category</option>
+            <option value="Water Supply">Water Supply</option>
+            <option value="Electricity">Electricity</option>
+            <option value="Road Maintenance">Road Maintenance</option>
+            <option value="Sanitation">Sanitation</option>
+            <option value="Public Safety">Public Safety</option>
+        </select>
 
-            <label for="issue-category">Category *</label>
-            <select id="issue-category" required>
-                <option value="">Select Category</option>
-                <option value="Water Supply">Water Supply</option>
-                <option value="Electricity">Electricity</option>
-                <option value="Road Maintenance">Road Maintenance</option>
-                <option value="Sanitation">Sanitation</option>
-                <option value="Public Safety">Public Safety</option>
-            </select>
+        <label for="issue-department">Department *</label>
+        <select id="issue-department" required>
+            <option value="">Select Department</option>
+            <option value="Water Supply">Water Supply</option>
+            <option value="Electricity">Electricity</option>
+            <option value="Road Maintenance">Road Maintenance</option>
+            <option value="Public Health">Public Health</option>
+            <option value="Sanitation">Sanitation</option>
+        </select>
 
-            <label for="issue-department">Department *</label>
-            <select id="issue-department" required>
-                <option value="">Select Department</option>
-                <option value="Water Supply">Water Supply</option>
-                <option value="Electricity">Electricity</option>
-                <option value="Road Maintenance">Road Maintenance</option>
-                <option value="Public Health">Public Health</option>
-                <option value="Sanitation">Sanitation</option>
-            </select>
+        <label for="issue-description">Description *</label>
+        <textarea id="issue-description" required rows="4"></textarea>
 
-            <label for="issue-description">Description *</label>
-            <textarea id="issue-description" required rows="4"></textarea>
 
-            <label for="issue-image">Image URL (Optional)</label>
-            <input type="url" id="issue-image" placeholder="https://example.com/image.jpg">
+        <!-- REAL-TIME CAMERA CAPTURE -->
+        <label>Take Photo (Optional)</label>
 
-            <label for="issue-pincode">Pincode *</label>
-            <input type="text" id="issue-pincode" required value="<%= user.Pincode %>">
+        <video id="cameraPreview" autoplay playsinline 
+               style="width:100%; border-radius:8px; display:none; margin-bottom:10px;">
+        </video>
 
-            <label for="issue-state">State *</label>
-            <input type="text" id="issue-state" required value="<%= user.State %>">
+        <canvas id="capturedImage" style="display:none;"></canvas>
 
-            <label for="issue-city">City *</label>
-            <input type="text" id="issue-city" required value="<%= user.City %>">
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <button type="button" onclick="startCamera()" id="openCamBtn">
+                Open Camera
+            </button>
 
-            <label for="issue-address">Address Line (Optional)</label>
-            <input type="text" id="issue-address" value="<%= user.Address_Line || '' %>">
+            <button type="button" onclick="capturePhoto()" 
+                    id="captureBtn" style="display:none;">
+                Capture
+            </button>
+        </div>
 
-            <button type="mytype" id="submit-complaint-btn" onclick="submitComplaint(event)">Submit Complaint</button>
-        </form>
-    </div>
+        <!-- Hidden input to store base64 image -->
+        <input type="hidden" id="issue-photo" name="issuePhoto">
+
+
+        <label for="issue-pincode">Pincode *</label>
+        <input type="text" id="issue-pincode" required value="<%= user.Pincode %>">
+
+        <label for="issue-state">State *</label>
+        <input type="text" id="issue-state" required value="<%= user.State %>">
+
+        <label for="issue-city">City *</label>
+        <input type="text" id="issue-city" required value="<%= user.City %>">
+
+        <label for="issue-address">Address Line (Optional)</label>
+        <input type="text" id="issue-address" value="<%= user.Address_Line || '' %>">
+
+        <button type="button" id="submit-complaint-btn" onclick="submitComplaint(event)">
+            Submit Complaint
+        </button>
+    </form>
+</div>
+
+   
 
 <script src="/user/js/citizen.js"></script>
+<script>
+let stream;
+
+// Start live camera
+async function startCamera() {
+    const video = document.getElementById("cameraPreview");
+    const captureBtn = document.getElementById("captureBtn");
+
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        video.style.display = "block";
+        captureBtn.style.display = "inline-block";
+    } catch (err) {
+        alert("Camera access denied or unavailable");
+    }
+}
+
+// Capture photo
+function capturePhoto() {
+    const video = document.getElementById("cameraPreview");
+    const canvas = document.getElementById("capturedImage");
+    const hiddenInput = document.getElementById("issue-photo");
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0);
+
+    const base64Image = canvas.toDataURL("image/jpeg");
+    hiddenInput.value = base64Image;
+
+    // stop camera
+    stream.getTracks().forEach(track => track.stop());
+
+    alert("Photo Captured!");
+}
+</script>
+
 </body>
 </html>

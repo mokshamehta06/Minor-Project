@@ -27,9 +27,13 @@ const loginAdmin = (req, res) => {
 
     if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
         // Set a cookie to indicate admin is logged in
-        res.cookie('adminToken', 'someSecureToken', { httpOnly: true});
+        res.cookie('adminToken', 'someSecureToken', { 
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'Strict'
+        });
         console.log('Admin login successful!');
-        return res.status(200).json({ message: 'Admin logged in successfully' });
+        return res.status(200).json({ message: 'Admin logged in successfully', redirect: '/admin/register' });
     } else {
         console.log('Admin login failed - credentials do not match');
         return res.status(401).json({ error: 'Invalid admin credentials' });

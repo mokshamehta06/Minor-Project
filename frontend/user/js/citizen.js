@@ -1,8 +1,109 @@
 // Configuration
         const SERVER_URL = 'http://localhost:3000';
 
+        // Language / Translations
+        let currentLang = localStorage.getItem('lang') || 'en';
+
+        const TRANSLATIONS = {
+            hi: {
+                logo: 'नागरिक पोर्टल',
+                quick_actions: 'त्वरित क्रियाएँ',
+                report_issue: 'समस्या की रिपोर्ट करें',
+                track_complaint: 'शिकायत ट्रैक करें',
+                pay_bill: 'बिल भुगतान',
+                request_certificate: 'प्रमाण पत्र का अनुरोध',
+                book_appointment: 'नियुक्ति बुक करें',
+                voice_assistant: 'वॉइस सहायक',
+                click_to_speak: 'बोलने के लिए क्लिक करें',
+                my_area_problems: 'मेरे क्षेत्र की समस्याएँ',
+                bills_dues: 'बिल और बकाया',
+                my_recent_complaints: 'मेरी हाल की शिकायतें',
+                all_my_complaints: 'मेरी सभी शिकायतें',
+                view_all: 'सभी देखें',
+                select_category: 'श्रेणी चुनें',
+                select_department: 'विभाग चुनें',
+                description: 'विवरण',
+                take_photo: 'फोटो लें (वैकल्पिक)',
+                submit: 'सबमिट करें',
+                no_complaints_yet: ' अभी तक कोई शिकायत नहीं। पहली शिकायत दर्ज करने के लिए "समस्या की रिपोर्ट करें" पर क्लिक करें।',
+                loading_complaints: 'शिकायतें लोड हो रही हैं...'
+            }
+        };
+
+        function translatePage(lang) {
+            if (!lang || lang === 'en') return; // nothing to do for English baseline
+            const t = TRANSLATIONS[lang];
+            if (!t) return;
+
+            // Simple selector-based translations
+            const selSet = [
+                {sel: '.logo span', key: 'logo'},
+                {sel: '.quick-actions h3', key: 'quick_actions'},
+                {sel: '.action-btn:nth-child(1) span', key: 'report_issue'},
+                {sel: '.action-btn:nth-child(2) span', key: 'track_complaint'},
+                {sel: '.action-btn:nth-child(3) span', key: 'pay_bill'},
+                {sel: '.action-btn:nth-child(4) span', key: 'request_certificate'},
+                {sel: '.action-btn:nth-child(5) span', key: 'book_appointment'},
+                {sel: '.voice-assistant h4', key: 'voice_assistant'},
+                {sel: '#voiceStatus', key: 'click_to_speak'},
+                {sel: '.alert-card .card-header h3', key: 'my_area_problems'},
+                {sel: '.bills-card .card-header h3', key: 'bills_dues'},
+                {sel: '.requests-card .card-header h3', key: 'my_recent_complaints'},
+                {sel: 'section.my-complaints-section h2', key: 'all_my_complaints'},
+                {sel: '#report-issue-modal h3', key: 'report_issue'},
+                {sel: '#report-issue-form label[for="issue-category"]', key: 'select_category'},
+                {sel: '#report-issue-form label[for="issue-department"]', key: 'select_department'},
+                {sel: '#report-issue-form label[for="issue-description"]', key: 'description'},
+                {sel: '#report-issue-modal button[type="submit"]', key: 'submit'}
+            ];
+
+            selSet.forEach(entry => {
+                const el = document.querySelector(entry.sel);
+                if (el && t[entry.key]) {
+                    // For buttons/spans, set textContent
+                    el.textContent = t[entry.key];
+                }
+            });
+
+            // Replace some inline placeholder texts
+            const allComplaintsContainer = document.getElementById('all-complaints-container');
+            if (allComplaintsContainer && TRANSLATIONS[lang].no_complaints_yet) {
+                // If currently the container has the default English paragraph, replace it
+                const p = allComplaintsContainer.querySelector('p');
+                if (p && p.textContent.includes('No complaints yet')) {
+                    p.textContent = TRANSLATIONS[lang].no_complaints_yet;
+                }
+            }
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            // Apply translations
+            if (lang === 'en') {
+                // page is originally English; reload to get dynamic text back or re-run data functions
+                // Instead of full reload, we will re-run load/display functions and then skip translation
+                // but first reset some static elements to English by reloading page texts where feasible
+                window.location.reload();
+                return;
+            }
+            translatePage(lang);
+            // Also update dynamic selects
+            const cat = document.getElementById('issue-category');
+            if (cat) cat.querySelector('option') && (cat.querySelector('option').textContent = TRANSLATIONS[lang].select_category);
+            const dept = document.getElementById('issue-department');
+            if (dept) dept.querySelector('option') && (dept.querySelector('option').textContent = TRANSLATIONS[lang].select_department);
+        }
+
         // Load departments and categories on page load
         document.addEventListener('DOMContentLoaded', function() {
+            // set language selector
+            const langSelect = document.getElementById('languageSelect');
+            if (langSelect) {
+                langSelect.value = currentLang;
+                langSelect.addEventListener('change', (e) => setLanguage(e.target.value));
+            }
+
             loadDepartments();
             loadCategories();
             loadUserComplaints();
@@ -10,6 +111,11 @@
             const reportForm = document.getElementById('report-issue-form');
             if (reportForm) {
                 reportForm.addEventListener('submit', submitComplaint);
+            }
+
+            // Apply translation if non-english
+            if (currentLang && currentLang !== 'en') {
+                setTimeout(() => translatePage(currentLang), 300);
             }
         });
 
@@ -20,7 +126,7 @@
                 const data = await response.json();
 
                 const departmentSelect = document.getElementById('issue-department');
-                departmentSelect.innerHTML = '<option value="">Select Department</option>';
+                departmentSelect.innerHTML = `<option value="">${currentLang === 'hi' ? 'विभाग चुनें' : 'Select Department'}</option>`;
 
                 data.departments.forEach(dept => {
                     const option = document.createElement('option');
@@ -42,7 +148,7 @@
                 const data = await response.json();
 
                 const categorySelect = document.getElementById('issue-category');
-                categorySelect.innerHTML = '<option value="">Select Category</option>';
+                categorySelect.innerHTML = `<option value="">${currentLang === 'hi' ? 'श्रेणी चुनें' : 'Select Category'}</option>`;
 
                 data.categories.forEach(cat => {
                     const option = document.createElement('option');
