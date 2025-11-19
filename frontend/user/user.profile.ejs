@@ -195,12 +195,12 @@
 
 
     <div id="report-issue-modal" class="modal">
-        <form id="report-issue-form" class="modal-form">
+        <form id="report-issue-form" class="modal-form" enctype="multipart/form-data" method="POST" action="/user/registerComplain">
             <span class="close-btn" onclick="closeReportModal()">&times;</span>
             <h3 style="margin-bottom: 20px; color: #1e3a8a;">Report an Issue</h3>
 
             <label for="issue-category">Category *</label>
-            <select id="issue-category" required>
+            <select id="issue-category" name="category" required>
                 <option value="">Select Category</option>
                 <option value="Water Supply">Water Supply</option>
                 <option value="Electricity">Electricity</option>
@@ -210,7 +210,7 @@
             </select>
 
             <label for="issue-department">Department *</label>
-            <select id="issue-department" required>
+            <select id="issue-department" name="department" required>
                 <option value="">Select Department</option>
                 <option value="Water Supply">Water Supply</option>
                 <option value="Electricity">Electricity</option>
@@ -220,24 +220,24 @@
             </select>
 
             <label for="issue-description">Description *</label>
-            <textarea id="issue-description" required rows="4"></textarea>
+            <textarea id="issue-description" name="description" required rows="4"></textarea>
 
-            <label for="issue-image">Image URL (Optional)</label>
-            <input type="url" id="issue-image" placeholder="https://example.com/image.jpg">
+            <label for="issue-image">Upload Image (Optional)</label>
+            <input type="file" id="issue-image" name="image" accept="image/*">
 
             <label for="issue-pincode">Pincode *</label>
-            <input type="text" id="issue-pincode" required value="<%= user.Pincode %>">
+            <input type="text" id="issue-pincode" name="Pincode" required value="<%= user.Pincode %>">
 
             <label for="issue-state">State *</label>
-            <input type="text" id="issue-state" required value="<%= user.State %>">
+            <input type="text" id="issue-state" name="State" required value="<%= user.State %>">
 
             <label for="issue-city">City *</label>
-            <input type="text" id="issue-city" required value="<%= user.City %>">
+            <input type="text" id="issue-city" name="City" required value="<%= user.City %>">
 
             <label for="issue-address">Address Line (Optional)</label>
-            <input type="text" id="issue-address" value="<%= user.Address_Line || '' %>">
+            <input type="text" id="issue-address" name="Address_Line" value="<%= user.Address_Line || '' %>">
 
-            <button type="mytype" id="submit-complaint-btn" onclick="submitComplaint(event)">Submit Complaint</button>
+            <button type="submit" id="submit-complaint-btn">Submit Complaint</button>
         </form>
     </div>
 

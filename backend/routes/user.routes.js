@@ -10,6 +10,7 @@ const { trackUserComplain } = require('../controllers/user.controllers/user.comp
 const {viewLocalIssues} = require('../controllers/user.controllers/user.viewLocalIssues.controller');
 const {viewCityIssues} = require('../controllers/user.controllers/user.viewCityIssues.controller');
 const {viewStateIssues} = require('../controllers/user.controllers/user.viewStateIssues.controller');
+const upload = require('../upload/multer.middleware');
 
 
 router.post('/register', registerUser);
@@ -21,7 +22,7 @@ router.get('/login', (req, res) => {
 });
 router.post('/login',loginUser);
 router.get('/profile/:id', isAuthenticated,getUserProfile);
-router.post('/registerComplain', isAuthenticated,registerUserComplain);
+router.post('/registerComplain', isAuthenticated, upload.single('image'), registerUserComplain);
 router.get('/trackComplain', isAuthenticated,trackUserComplain);
 router.get('/viewLocalIssues', isAuthenticated, viewLocalIssues);
 router.get('/viewCityIssues', isAuthenticated, viewCityIssues);
