@@ -152,18 +152,179 @@
             activeItem.classList.add('active');
         }
 
-        async function startTask(taskId) {  // this part is added new
-            // alert(`Starting task: ${taskId}`);
-            const res = await fetch(`/official/getWorkers`,{
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'same-origin' // send cookies (auth token)
+        let currentComplaintId = null;
+
+        // Make functions globally accessible
+        window.startTask = async function(taskId) {
+            console.log('startTask called with taskId:', taskId);
+            currentComplaintId = taskId;
+            await openWorkerModal(taskId);
+        }
+
+        window.openWorkerModal = async function(complaintId) {
+            console.log('openWorkerModal called with complaintId:', complaintId);
+            const modal = document.getElementById('workerModal');
+            console.log('Modal element:', modal);
+
+            if (!modal) {
+                console.error('Worker modal element not found');
+                alert('Error: Modal element not found');
+                return;
+            }
+            modal.style.display = 'flex';
+
+            // Fetch workers
+            try {
+                const res = await fetch(`/official/getWorkers?complaint_id=${complaintId}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin'
+                });
+                const data = await res.json();
+                console.log('Workers data:', data);
+                displayWorkers(data.workers, complaintId);
+            } catch (error) {
+                console.error('Error fetching workers:', error);
+                alert('Failed to load workers');
+            }
+        }
+
+        window.closeWorkerModal = function() {
+            console.log('closeWorkerModal called');
+            const modal = document.getElementById('workerModal');
+            if (!modal) {
+                console.error('Worker modal element not found');
+                return;
+            }
+            modal.style.display = 'none';
+            currentComplaintId = null;
+
+            // Hide add worker form if open
+            const form = document.getElementById('addWorkerForm');
+            if (form && form.style.display !== 'none') {
+                toggleAddWorkerForm();
+            }
+        }
+
+        function displayWorkers(workers, complaintId) {
+            const tbody = document.getElementById('workersTableBody');
+            tbody.innerHTML = '';
+
+            if (workers.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 2rem; color: #666;">
+                            <i class="fas fa-users-slash" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
+                            No workers found. Add workers to get started.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            workers.forEach(worker => {
+                const isAssigned = worker.assignment_status === 'assigned';
+                const statusText = isAssigned ? 'Yes' : 'No';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${worker.First_name} ${worker.Last_name}</td>
+                    <td>${worker.Phone}</td>
+                    <td>${statusText}</td>
+                    <td>
+                        <button
+                            class="assign-btn"
+                            onclick="assignWorkerToComplaint(${worker.worker_id}, ${complaintId})"
+                            ${isAssigned ? 'disabled' : ''}
+                        >
+                            ${isAssigned ? 'Already Assigned' : 'Assign to Task'}
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
             });
-            const WorkerData = await res.json();
-            console.log('Workers assigned to official:', WorkerData.workers);    
-            const CompleteWorkersInfo = WorkerData.workers;
-            console.log(CompleteWorkersInfo[0]);
-            console.log(CompleteWorkersInfo[1]);   
+        }
+        window.toggleAddWorkerForm = function() {
+            const form = document.getElementById('addWorkerForm');
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+            } else {
+                form.style.display = 'none';
+                // Clear form
+                document.getElementById('workerFirstName').value = '';
+                document.getElementById('workerLastName').value = '';
+                document.getElementById('workerPhone').value = '';
+            }
+        }
+
+        window.submitNewWorker = async function() {
+            const firstName = document.getElementById('workerFirstName').value.trim();
+            const lastName = document.getElementById('workerLastName').value.trim();
+            const phone = document.getElementById('workerPhone').value.trim();
+
+            if (!firstName || !lastName || !phone) {
+                alert('Please fill in all required fields (marked with *)');
+                return;
+            }
+
+            try {
+                const res = await fetch('/official/addWorker', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        First_name: firstName,
+                        Last_name: lastName,
+                        Phone: phone
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert('Worker added successfully!');
+                    window.toggleAddWorkerForm();
+                    // Reload workers
+                    await window.openWorkerModal(currentComplaintId);
+                } else {
+                    alert(data.message || 'Failed to add worker');
+                }
+            } catch (error) {
+                console.error('Error adding worker:', error);
+                alert('Failed to add worker');
+            }
+        }
+
+        window.assignWorkerToComplaint = async function(workerId, complaintId) {
+            if (!confirm('Are you sure you want to assign this worker to the task?')) {
+                return;
+            }
+
+            try {
+                const res = await fetch('/official/assignWorker', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        worker_id: workerId,
+                        complaint_id: complaintId
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert('Worker assigned successfully! Complaint status updated to in-progress.');
+                    window.closeWorkerModal();
+                    // Reload complaints to show updated status
+                    await loadStaffData();
+                } else {
+                    alert(data.message || 'Failed to assign worker');
+                }
+            } catch (error) {
+                console.error('Error assigning worker:', error);
+                alert('Failed to assign worker');
+            }
         }
         
 

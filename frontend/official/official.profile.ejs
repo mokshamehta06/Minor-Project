@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Dashboard - Voice Municipal Assistant</title>
+    <title>Muncipality Dashboard - Voice Municipal Assistant</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="/official/officialStyles/officialStyles.css" rel="stylesheet">
-    <script src="/official/officialJS/official.profile.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -23,30 +22,30 @@
                 </div>
             </div>
             
-            <div class="nav-menu">
+                <div class="nav-menu">
                 <a href="#my-tasks" class="nav-item active">
                     <i class="fas fa-tasks"></i>
-                    My Tasks
+                    <span class="trans" data-key="nav_my_tasks">My Tasks</span>
                 </a>
                 <a href="#assigned-complaints" class="nav-item">
                     <i class="fas fa-clipboard-list"></i>
-                    Assigned Complaints
+                    <span class="trans" data-key="nav_assigned">Assigned Complaints</span>
                 </a>
                 <a href="#field-updates" class="nav-item">
                     <i class="fas fa-map-marker-alt"></i>
-                    Field Updates
+                    <span class="trans" data-key="nav_field_updates">Field Updates</span>
                 </a>
                 <a href="#work-history" class="nav-item">
                     <i class="fas fa-history"></i>
-                    Work History
+                    <span class="trans" data-key="nav_work_history">Work History</span>
                 </a>
                 <a href="#resources" class="nav-item">
                     <i class="fas fa-tools"></i>
-                    Resources
+                    <span class="trans" data-key="nav_resources">Resources</span>
                 </a>
                 <a href="#voice-reports" class="nav-item">
                     <i class="fas fa-microphone"></i>
-                    Voice Reports
+                    <span class="trans" data-key="nav_voice_reports">Voice Reports</span>
                 </a>
             </div>
         </nav>
@@ -82,7 +81,7 @@
                             <i class="fas fa-clipboard-list"></i>
                         </div>
                         <div class="stat-number">8</div>
-                        <div class="stat-label">Assigned Tasks</div>
+                        <div class="stat-label trans" data-key="stat_assigned">Assigned Tasks</div>
                     </div>
                     
                     <div class="stat-card">
@@ -90,7 +89,7 @@
                             <i class="fas fa-spinner"></i>
                         </div>
                         <div class="stat-number">3</div>
-                        <div class="stat-label">In Progress</div>
+                        <div class="stat-label trans" data-key="stat_in_progress">In Progress</div>
                     </div>
                     
                     <div class="stat-card">
@@ -98,7 +97,7 @@
                             <i class="fas fa-check-circle"></i>
                         </div>
                         <div class="stat-number">15</div>
-                        <div class="stat-label">Completed Today</div>
+                        <div class="stat-label trans" data-key="stat_completed">Completed Today</div>
                     </div>
                     
                     <div class="stat-card">
@@ -106,14 +105,14 @@
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
                         <div class="stat-number">1</div>
-                        <div class="stat-label">Overdue</div>
+                        <div class="stat-label trans" data-key="stat_overdue">Overdue</div>
                     </div>
                 </div>
 
                 <!-- My Tasks -->
                 <div class="my-tasks">
                     <div class="tasks-header">
-                        <h2>Department Complaints</h2>
+                        <h2 class="trans" data-key="title_department">Department Complaints</h2>
                         <span id="tasksCount">Loading...</span>
                     </div>
                     <div class="tasks-content" id="mainContent">
@@ -201,6 +200,74 @@
         </main>
     </div>
 
-    
+    <!-- Worker Management Modal -->
+    <div id="workerModal" class="worker-modal" style="display: none;">
+        <div class="worker-modal-overlay" onclick="closeWorkerModal()"></div>
+        <div class="worker-modal-content">
+            <div class="worker-modal-header">
+                <h2><i class="fas fa-users"></i> Worker Management</h2>
+                <button class="close-modal-btn" onclick="closeWorkerModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="worker-modal-body">
+                <!-- Add Worker Form -->
+                <div class="add-worker-section">
+                    <button class="toggle-add-worker-btn" onclick="toggleAddWorkerForm()">
+                        <i class="fas fa-plus-circle"></i> Add New Worker
+                    </button>
+
+                    <div id="addWorkerForm" class="add-worker-form" style="display: none;">
+                        <h3>Add New Worker</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>First Name *</label>
+                                <input type="text" id="workerFirstName" placeholder="Enter first name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name *</label>
+                                <input type="text" id="workerLastName" placeholder="Enter last name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone Number *</label>
+                                <input type="tel" id="workerPhone" placeholder="Enter phone number" required>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn-cancel" onclick="toggleAddWorkerForm()">Cancel</button>
+                            <button class="btn-submit" onclick="submitNewWorker()">
+                                <i class="fas fa-user-plus"></i> Add Worker
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workers Table -->
+                <div class="workers-table-container">
+                    <h3>Available Workers</h3>
+                    <table class="workers-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Phone Number</th>
+                                <th>Assigned Work</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="workersTableBody">
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 2rem;">
+                                    <i class="fas fa-spinner fa-spin"></i> Loading workers...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/official/officialJS/official.profile.js"></script>
 </body>
 </html>

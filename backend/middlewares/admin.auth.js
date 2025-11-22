@@ -22,10 +22,18 @@
 const isAdminAuthenticated = (req, res, next) => {
     const adminToken = req.cookies.adminToken;
     if (!adminToken) {
-        return res.status(401).json({ error: 'Admin authentication token is missing.' });
+        // Check if it's an API request (JSON expected) or a page request
+        if (req.accepts('json') && !req.accepts('html')) {
+            return res.status(401).json({ error: 'Admin authentication token is missing.' });
+        }
+        // Redirect to admin login for page requests
+        return res.redirect('/admin/login');
     }
     if (adminToken !== 'someSecureToken') {
-        return res.status(401).json({ error: 'Invalid admin authentication token.' });
+        if (req.accepts('json') && !req.accepts('html')) {
+            return res.status(401).json({ error: 'Invalid admin authentication token.' });
+        }
+        return res.redirect('/admin/login');
     }
     next();
 };
