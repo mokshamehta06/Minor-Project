@@ -481,52 +481,109 @@
             closeSettingsModal(); // Also close settings modal
         }
 
-        async function submitComplaint(event) {
-            console.log("submitComplaint called");
-            event.preventDefault();
+//         async function submitComplaint(event) {
+//   event.preventDefault();
+//   const form = document.getElementById('report-issue-form');
+//   if (!form) return;
 
-            const complaintData = {
-                category: document.getElementById('issue-category').value,
-                department: document.getElementById('issue-department').value,
-                description: document.getElementById('issue-description').value,
-                imageUrl: document.getElementById('issue-image').value || null,
-                Pincode: document.getElementById('issue-pincode').value,
-                State: document.getElementById('issue-state').value,
-                City: document.getElementById('issue-city').value,
-                Address_Line: document.getElementById('issue-address').value || null
-            };
+//   const formData = new FormData(form);
 
-            console.log("📤 Sending complaint data:", complaintData);
+//   // Debug: log all FormData keys/values (files show as File objects)
+//   for (const pair of formData.entries()) {
+//     console.log('FormData entry:', pair[0], pair[1]);
+//   }
 
-            try {
-                const response = await fetch(`${SERVER_URL}/user/registerComplain`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify(complaintData)
-                });
+//   try {
+//     const res = await fetch(`${SERVER_URL}/user/registerComplain`, { // use SERVER_URL
+//       method: 'POST',
+//       body: formData,
+//       credentials: 'include'
+//     });
 
-                const data = await response.json();
-                console.log("📥 Server response:", data);
-                console.log("Response status:", response.status);
+//     const result = await res.json();
+//     if (!res.ok) {
+//       const errMsg = result.error || result.message || 'Upload failed';
+//       throw new Error(errMsg);
+//     }
 
-                if (response.ok) {
-                    console.log("✅ Complaint submitted successfully!");
-                    document.getElementById('report-issue-form').reset();
-                    closeReportModal();
-                    showNotification('Complaint submitted successfully!', 'success');
-                    loadUserComplaints(); // Reload complaints
-                } else {
-                    console.error("❌ Server error:", data);
-                    showNotification(data.error || data.message || 'Error submitting complaint', 'error');
-                }
-            } catch (error) {
-                console.error('❌ Error submitting complaint:', error);
-                showNotification('Error submitting complaint. Please try again.', 'error');
-            }
-        }
+//     alert('Complaint submitted successfully');
+//     form.reset();
+//   } catch (err) {
+//     console.error('Complaint submit error:', err);
+//     alert(err.message || 'Submission failed');
+//   }
+//         }
+
+
+async function submitComplaint(event) {
+  event.preventDefault();
+  const form = document.getElementById('report-issue-form');
+  if (!form) return;
+
+  const formData = new FormData();
+
+  // append form controls by name (FormData(form) would work if all names present,
+  // but building explicitly helps us control the image file)
+  const elements = [
+    'category', 'department', 'description',
+    'Pincode', 'State', 'City', 'Address_Line'
+  ];
+  elements.forEach(name => {
+    const el = form.querySelector(`[name="${name}"]`);
+    if (el) formData.append(name, el.value || '');
+  });
+
+  // If there's a captured base64 image in hidden input, convert to Blob and append as "image"
+  const base64input = document.getElementById('issue-photo');
+  if (base64input && base64input.value) {
+    const dataURL = base64input.value;
+    // validate prefix
+    const matches = dataURL.match(/^data:(image\/(png|jpeg|jpg|webp));base64,(.+)$/);
+    if (!matches) {
+      alert('Captured image is invalid or unsupported format.');
+      return;
+    }
+    const mimeType = matches[1];
+    const base64Data = matches[3];
+    const byteString = atob(base64Data);
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    const blob = new Blob([ab], { type: mimeType });
+    // create a File for better compatibility (multer expects file)
+    const file = new File([blob], `capture-${Date.now()}.jpg`, { type: mimeType });
+    formData.append('image', file); // must match multer upload.single('image')
+  }
+
+  try {
+    // debug: show keys and types (File objects will show as File)
+    for (const pair of formData.entries()) {
+      console.log('FormData entry:', pair[0], pair[1]);
+    }
+
+    const res = await fetch(`${SERVER_URL}/user/registerComplain`, {
+      method: 'POST',
+      body: formData,
+      credentials: 'include'
+    });
+
+    const result = await res.json();
+    if (!res.ok) {
+      const errMsg = result.error || result.message || 'Upload failed';
+      throw new Error(errMsg);
+    }
+
+    alert('Complaint submitted successfully');
+    form.reset();
+    // hide video/canvas UI if any...
+  } catch (err) {
+    console.error('Complaint submit error:', err);
+    alert(err.message || 'Submission failed');
+  }
+}
+
 
         // --- Other Action/Helper Functions ---
 

@@ -193,13 +193,16 @@
         </div>
     </div>
 
+
 <div id="report-issue-modal" class="modal">
-    <form id="report-issue-form" class="modal-form" enctype="multipart/form-data">
+    <form id="report-issue-form" class="modal-form" enctype="multipart/form-data" method="POST" action="/user/registerComplain">
+
         <span class="close-btn" onclick="closeReportModal()">&times;</span>
         <h3 style="margin-bottom: 20px; color: #1e3a8a;">Report an Issue</h3>
 
+        <!-- Category -->
         <label for="issue-category">Category *</label>
-        <select id="issue-category" required>
+        <select id="issue-category" name="category" required>
             <option value="">Select Category</option>
             <option value="Water Supply">Water Supply</option>
             <option value="Electricity">Electricity</option>
@@ -208,8 +211,9 @@
             <option value="Public Safety">Public Safety</option>
         </select>
 
+        <!-- Department -->
         <label for="issue-department">Department *</label>
-        <select id="issue-department" required>
+        <select id="issue-department" name="department" required>
             <option value="">Select Department</option>
             <option value="Water Supply">Water Supply</option>
             <option value="Electricity">Electricity</option>
@@ -218,51 +222,51 @@
             <option value="Sanitation">Sanitation</option>
         </select>
 
+        <!-- Description -->
         <label for="issue-description">Description *</label>
-        <textarea id="issue-description" required rows="4"></textarea>
-
+        <textarea id="issue-description" name="description" required rows="4"></textarea>
 
         <!-- REAL-TIME CAMERA CAPTURE -->
         <label>Take Photo (Optional)</label>
 
-        <video id="cameraPreview" autoplay playsinline 
+        <video id="cameraPreview" autoplay playsinline
                style="width:100%; border-radius:8px; display:none; margin-bottom:10px;">
         </video>
 
         <canvas id="capturedImage" style="display:none;"></canvas>
 
         <div style="display:flex; gap:10px; margin-bottom:10px;">
-            <button type="button" onclick="startCamera()" id="openCamBtn">
-                Open Camera
-            </button>
-
-            <button type="button" onclick="capturePhoto()" 
-                    id="captureBtn" style="display:none;">
-                Capture
-            </button>
+            <button type="button" onclick="startCamera()" id="openCamBtn">Open Camera</button>
+            <button type="button" onclick="capturePhoto()" id="captureBtn" style="display:none;">Capture</button>
         </div>
 
         <!-- Hidden input to store base64 image -->
         <input type="hidden" id="issue-photo" name="issuePhoto">
 
-
+        <!-- Pincode -->
         <label for="issue-pincode">Pincode *</label>
-        <input type="text" id="issue-pincode" required value="<%= user.Pincode %>">
+        <input type="text" id="issue-pincode" name="Pincode" required value="<%= user.Pincode %>">
 
+        <!-- State -->
         <label for="issue-state">State *</label>
-        <input type="text" id="issue-state" required value="<%= user.State %>">
+        <input type="text" id="issue-state" name="State" required value="<%= user.State %>">
 
+        <!-- City -->
         <label for="issue-city">City *</label>
-        <input type="text" id="issue-city" required value="<%= user.City %>">
+        <input type="text" id="issue-city" name="City" required value="<%= user.City %>">
 
+        <!-- Address -->
         <label for="issue-address">Address Line (Optional)</label>
-        <input type="text" id="issue-address" value="<%= user.Address_Line || '' %>">
+        <input type="text" id="issue-address" name="Address_Line" value="<%= user.Address_Line || '' %>">
 
+        <!-- Submit -->
         <button type="button" id="submit-complaint-btn" onclick="submitComplaint(event)">
             Submit Complaint
         </button>
+
     </form>
 </div>
+
 
    
 
