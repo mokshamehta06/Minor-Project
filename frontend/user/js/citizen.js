@@ -26,7 +26,10 @@
                 take_photo: 'फोटो लें (वैकल्पिक)',
                 submit: 'सबमिट करें',
                 no_complaints_yet: ' अभी तक कोई शिकायत नहीं। पहली शिकायत दर्ज करने के लिए "समस्या की रिपोर्ट करें" पर क्लिक करें।',
-                loading_complaints: 'शिकायतें लोड हो रही हैं...'
+                loading_complaints: 'शिकायतें लोड हो रही हैं...',
+                fetch_problems: 'समस्याएं प्राप्त करें',
+                loading_problems: 'समस्याएं लोड हो रही हैं...',
+                no_problems_found: 'आपके क्षेत्र में कोई समस्या नहीं मिली'
             }
         };
 
@@ -54,7 +57,8 @@
                 {sel: '#report-issue-form label[for="issue-category"]', key: 'select_category'},
                 {sel: '#report-issue-form label[for="issue-department"]', key: 'select_department'},
                 {sel: '#report-issue-form label[for="issue-description"]', key: 'description'},
-                {sel: '#report-issue-modal button[type="submit"]', key: 'submit'}
+                {sel: '#report-issue-modal button[type="submit"]', key: 'submit'},
+                {sel: '.fetch-problems-btn span', key: 'fetch_problems'}
             ];
 
             selSet.forEach(entry => {
@@ -651,3 +655,71 @@ async function submitComplaint(event) {
                 profileMenuDropdown.style.display = 'none';
             }
         });
+
+        // Fetch area problems function
+        async function fetchAreaProblems() {
+            const contentDiv = document.getElementById('area-problems-content');
+            const fetchBtn = document.querySelector('.fetch-problems-btn');
+
+            if (!contentDiv) return;
+
+            // Show loading state
+            const loadingText = currentLang === 'hi' ? 'समस्याएं लोड हो रही हैं...' : 'Loading problems...';
+            contentDiv.innerHTML = `<p style="color: #64748b; text-align: center; padding: 1rem;"><i class="fas fa-spinner fa-spin"></i> ${loadingText}</p>`;
+
+            if (fetchBtn) {
+                fetchBtn.disabled = true;
+                fetchBtn.style.opacity = '0.6';
+            }
+
+            try {
+                // Fetch area problems from the server (using viewLocalIssues endpoint)
+                const response = await fetch(`${SERVER_URL}/user/viewLocalIssues`, {
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.localIssues && data.localIssues.length > 0) {
+                    // Display the fetched problems
+                    contentDiv.innerHTML = '';
+
+                    data.localIssues.forEach(problem => {
+                        const alertItem = document.createElement('div');
+                        alertItem.className = 'alert-item';
+
+                        // Determine urgency based on status
+                        const urgencyClass = problem.status === 'pending' ? 'urgent' : 'info';
+                        alertItem.classList.add(urgencyClass);
+
+                        alertItem.innerHTML = `
+                            <span class="alert-dot"></span>
+                            <div>
+                                <p>${problem.description ? problem.description.substring(0, 50) + '...' : 'Issue'}</p>
+                                <small>${problem.City || 'Unknown location'} - ${new Date(problem.created_at).toLocaleDateString()}</small>
+                            </div>
+                        `;
+
+                        contentDiv.appendChild(alertItem);
+                    });
+
+                    showNotification('Area problems loaded successfully', 'success');
+                } else {
+                    // No problems found
+                    const noProblemsText = currentLang === 'hi' ? 'आपके क्षेत्र में कोई समस्या नहीं मिली' : 'No problems found in your area';
+                    contentDiv.innerHTML = `<p style="color: #64748b; text-align: center; padding: 1rem;">${noProblemsText}</p>`;
+                    showNotification(noProblemsText, 'info');
+                }
+            } catch (error) {
+                console.error('❌ Error fetching area problems:', error);
+                const errorText = currentLang === 'hi' ? 'समस्याएं लोड करने में त्रुटि' : 'Error loading problems';
+                contentDiv.innerHTML = `<p style="color: #ef4444; text-align: center; padding: 1rem;"><i class="fas fa-exclamation-triangle"></i> ${errorText}</p>`;
+                showNotification(errorText, 'error');
+            } finally {
+                // Re-enable button
+                if (fetchBtn) {
+                    fetchBtn.disabled = false;
+                    fetchBtn.style.opacity = '1';
+                }
+            }
+        }

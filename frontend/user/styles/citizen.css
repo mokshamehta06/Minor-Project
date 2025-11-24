@@ -400,6 +400,38 @@ body {
     background: var(--primary-blue);
 }
 
+/* Fetch Problems Button */
+.fetch-problems-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.fetch-problems-btn:hover {
+    background: var(--dark-blue) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+}
+
+.fetch-problems-btn:active {
+    transform: translateY(0);
+}
+
+.fetch-problems-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6 !important;
+}
+
+.fetch-problems-btn i {
+    transition: transform 0.3s ease;
+}
+
+.fetch-problems-btn:hover i {
+    transform: rotate(180deg);
+}
+
 /* Pickup Card */
 .pickup-card {
     border-left-color: var(--success-green);
