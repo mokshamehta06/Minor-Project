@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration - Municipal Services</title>
+    <link rel="stylesheet" href="/styles/common.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .auth-container {
+            max-width: 600px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        .password-requirements {
+            background-color: #f0f0f0;
+            padding: 12px;
+            border-radius: 5px;
+            margin-top: 8px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .password-requirements.show {
+            display: block;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            margin: 6px 0;
+            color: #666;
+        }
+
+        .requirement-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 50%;
+            background-color: #ddd;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .requirement.met {
+            color: #28a745;
+        }
+
+        .requirement.met .requirement-icon {
+            background-color: #28a745;
+            content: '✓';
+        }
+
+        .password-strength {
+            margin-top: 12px;
+        }
+
+        .strength-meter {
+            width: 100%;
+            height: 6px;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #dc3545;
+            transition: all 0.3s ease;
+        }
+
+        .strength-bar.weak {
+            width: 20%;
+            background-color: #dc3545;
+        }
+
+        .strength-bar.fair {
+            width: 40%;
+            background-color: #ffc107;
+        }
+
+        .strength-bar.good {
+            width: 60%;
+            background-color: #17a2b8;
+        }
+
+        .strength-bar.strong {
+            width: 80%;
+            background-color: #28a745;
+        }
+
+        .strength-bar.very-strong {
+            width: 100%;
+            background-color: #20c997;
+        }
+
+        .strength-text {
+            font-size: 12px;
+            color: #666;
+            display: block;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="logo-icon">📝</div>
+            <h1>User Registration</h1>
+            <p>Create your account to access municipal services</p>
+        </div>
+
+        <form class="auth-form" onsubmit="event.preventDefault(); registerDetails();">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="First_name">First Name</label>
+                    <input type="text" id="First_name" name="First_name" placeholder="Enter first name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="Last_name">Last Name</label>
+                    <input type="text" id="Last_name" name="Last_name" placeholder="Enter last name" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="Email" placeholder="Enter your email (must end with @gmail.com)" required onblur="validateEmail(this.value)" onkeyup="validateEmail(this.value)">
+                <span class="email-error" id="emailError" style="display: none; color: #dc3545; font-size: 12px;"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="Password">Password</label>
+                <input type="password" id="Password" name="Password" placeholder="Create a password (min 6 characters)" required onkeyup="validatePasswordStrengthReg(this.value)">
+                <div id="passwordRequirementsReg" class="password-requirements">
+                    <div class="requirement" id="req-length-reg">
+                        <span class="requirement-icon">✗</span> At least 8 characters
+                    </div>
+                    <div class="requirement" id="req-uppercase-reg">
+                        <span class="requirement-icon">✗</span> One uppercase letter (A-Z)
+                    </div>
+                    <div class="requirement" id="req-lowercase-reg">
+                        <span class="requirement-icon">✗</span> One lowercase letter (a-z)
+                    </div>
+                    <div class="requirement" id="req-number-reg">
+                        <span class="requirement-icon">✗</span> One number (0-9)
+                    </div>
+                    <div class="requirement" id="req-special-reg">
+                        <span class="requirement-icon">✗</span> One special character (!@#$%^&*)
+                    </div>
+                </div>
+                <div class="password-strength">
+                    <div class="strength-meter">
+                        <div class="strength-bar" id="strengthBarReg"></div>
+                    </div>
+                    <span class="strength-text" id="strengthTextReg">Password strength: Weak</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="Phone">Phone Number</label>
+                <input type="tel" id="Phone" name="Phone" placeholder="Enter 10-digit phone number" required onblur="validatePhone(this.value)" onkeyup="validatePhone(this.value)" maxlength="10">
+                <span class="phone-error" id="phoneError" style="display: none; color: #dc3545; font-size: 12px;"></span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="Pincode">Pincode</label>
+                    <input type="text" id="Pincode" name="Pincode" placeholder="Enter pincode" required onblur="fetchCityFromPincode(this.value)" pattern="[0-9]{6}" title="Please enter a valid 6-digit pincode">
+                    <span class="pincode-loading" id="pincodeLoading" style="display: none; color: #0066cc; font-size: 12px;">Fetching city...</span>
+                    <span class="pincode-error" id="pincodeError" style="display: none; color: #dc3545; font-size: 12px;"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="City">City</label>
+                    <input type="text" id="City" name="City" placeholder="Enter city (auto-filled)" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="State">State</label>
+                <input type="text" id="State" name="State" placeholder="Enter state" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Address_Line">Address Line (Optional)</label>
+                <input type="text" id="Address_Line" name="Address_Line" placeholder="Enter full address">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+
+        <div class="auth-footer">
+            Already have an account? <a href="/user/login">Login here</a>
+        </div>
+    </div>
+</body>
+<script>
+    // Indian Pincode to City Database (Sample - can be expanded)
+    const pincodeDatabase = {
+        '110001': { city: 'New Delhi', state: 'Delhi' },
+        '110002': { city: 'New Delhi', state: 'Delhi' },
+        '110003': { city: 'New Delhi', state: 'Delhi' },
+        '110004': { city: 'New Delhi', state: 'Delhi' },
+        '110005': { city: 'New Delhi', state: 'Delhi' },
+        '110006': { city: 'New Delhi', state: 'Delhi' },
+        '110007': { city: 'New Delhi', state: 'Delhi' },
+        '110008': { city: 'New Delhi', state: 'Delhi' },
+        '110009': { city: 'New Delhi', state: 'Delhi' },
+        '110010': { city: 'New Delhi', state: 'Delhi' },
+        '110011': { city: 'New Delhi', state: 'Delhi' },
+        '110012': { city: 'New Delhi', state: 'Delhi' },
+        '110013': { city: 'New Delhi', state: 'Delhi' },
+        '110014': { city: 'New Delhi', state: 'Delhi' },
+        '110015': { city: 'New Delhi', state: 'Delhi' },
+        '110016': { city: 'New Delhi', state: 'Delhi' },
+        '110017': { city: 'New Delhi', state: 'Delhi' },
+        '110018': { city: 'New Delhi', state: 'Delhi' },
+        '110019': { city: 'New Delhi', state: 'Delhi' },
+        '110020': { city: 'New Delhi', state: 'Delhi' },
+        '400001': { city: 'Mumbai', state: 'Maharashtra' },
+        '400002': { city: 'Mumbai', state: 'Maharashtra' },
+        '400003': { city: 'Mumbai', state: 'Maharashtra' },
+        '400004': { city: 'Mumbai', state: 'Maharashtra' },
+        '400005': { city: 'Mumbai', state: 'Maharashtra' },
+        '400006': { city: 'Mumbai', state: 'Maharashtra' },
+        '400007': { city: 'Mumbai', state: 'Maharashtra' },
+        '400008': { city: 'Mumbai', state: 'Maharashtra' },
+        '400009': { city: 'Mumbai', state: 'Maharashtra' },
+        '400010': { city: 'Mumbai', state: 'Maharashtra' },
+        '500001': { city: 'Hyderabad', state: 'Telangana' },
+        '500002': { city: 'Hyderabad', state: 'Telangana' },
+        '500003': { city: 'Hyderabad', state: 'Telangana' },
+        '500004': { city: 'Hyderabad', state: 'Telangana' },
+        '500005': { city: 'Hyderabad', state: 'Telangana' },
+        '500006': { city: 'Hyderabad', state: 'Telangana' },
+        '500007': { city: 'Hyderabad', state: 'Telangana' },
+        '500008': { city: 'Hyderabad', state: 'Telangana' },
+        '500009': { city: 'Hyderabad', state: 'Telangana' },
+        '500010': { city: 'Hyderabad', state: 'Telangana' },
+        '560001': { city: 'Bangalore', state: 'Karnataka' },
+        '560002': { city: 'Bangalore', state: 'Karnataka' },
+        '560003': { city: 'Bangalore', state: 'Karnataka' },
+        '560004': { city: 'Bangalore', state: 'Karnataka' },
+        '560005': { city: 'Bangalore', state: 'Karnataka' },
+        '560006': { city: 'Bangalore', state: 'Karnataka' },
+        '560007': { city: 'Bangalore', state: 'Karnataka' },
+        '560008': { city: 'Bangalore', state: 'Karnataka' },
+        '560009': { city: 'Bangalore', state: 'Karnataka' },
+        '560010': { city: 'Bangalore', state: 'Karnataka' },
+        '600001': { city: 'Chennai', state: 'Tamil Nadu' },
+        '600002': { city: 'Chennai', state: 'Tamil Nadu' },
+        '600003': { city: 'Chennai', state: 'Tamil Nadu' },
+        '600004': { city: 'Chennai', state: 'Tamil Nadu' },
+        '600005': { city: 'Chennai', state: 'Tamil Nadu' },
+        '600006': { city: 'Chennai', state: 'Tamil Nadu' },
+        '600007': { city: 'Chennai', state: 'Tamil Nadu' },
+        '600008': { city: 'Chennai', state: 'Tamil Nadu' },
+        '600009': { city: 'Chennai', state: 'Tamil Nadu' },
+        '600010': { city: 'Chennai', state: 'Tamil Nadu' },
+        '700001': { city: 'Kolkata', state: 'West Bengal' },
+        '700002': { city: 'Kolkata', state: 'West Bengal' },
+        '700003': { city: 'Kolkata', state: 'West Bengal' },
+        '700004': { city: 'Kolkata', state: 'West Bengal' },
+        '700005': { city: 'Kolkata', state: 'West Bengal' },
+        '700006': { city: 'Kolkata', state: 'West Bengal' },
+        '700007': { city: 'Kolkata', state: 'West Bengal' },
+        '700008': { city: 'Kolkata', state: 'West Bengal' },
+        '700009': { city: 'Kolkata', state: 'West Bengal' },
+        '700010': { city: 'Kolkata', state: 'West Bengal' },
+    };
+
+    function validatePasswordStrengthReg(password) {
+        const requirements = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /\d/.test(password),
+            special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+        };
+
+        // Update requirements UI
+        document.getElementById('req-length-reg').classList.toggle('met', requirements.length);
+        document.getElementById('req-uppercase-reg').classList.toggle('met', requirements.uppercase);
+        document.getElementById('req-lowercase-reg').classList.toggle('met', requirements.lowercase);
+        document.getElementById('req-number-reg').classList.toggle('met', requirements.number);
+        document.getElementById('req-special-reg').classList.toggle('met', requirements.special);
+
+        const requirementsDiv = document.getElementById('passwordRequirementsReg');
+        if (password.length > 0) {
+            requirementsDiv.classList.add('show');
+        } else {
+            requirementsDiv.classList.remove('show');
+        }
+
+        // Calculate strength score
+        const metCount = Object.values(requirements).filter(Boolean).length;
+        let strength = 'Weak';
+        let strengthClass = 'weak';
+
+        if (metCount === 5 && password.length >= 12) {
+            strength = 'Very Strong';
+            strengthClass = 'very-strong';
+        } else if (metCount === 5) {
+            strength = 'Strong';
+            strengthClass = 'strong';
+        } else if (metCount === 4 || (metCount === 3 && password.length >= 10)) {
+            strength = 'Good';
+            strengthClass = 'good';
+        } else if (metCount === 3 || metCount === 2) {
+            strength = 'Fair';
+            strengthClass = 'fair';
+        }
+
+        document.getElementById('strengthBarReg').className = 'strength-bar ' + strengthClass;
+        document.getElementById('strengthTextReg').textContent = 'Password strength: ' + strength;
+    }
+
+    async function fetchCityFromPincode(pincode) {
+        const pincodeInput = pincode.trim();
+        const pincodeError = document.getElementById('pincodeError');
+        const pincodeLoading = document.getElementById('pincodeLoading');
+
+        if (pincodeInput.length === 0) return;
+
+        // Validate pincode format
+        if (!/^\d{6}$/.test(pincodeInput)) {
+            pincodeError.textContent = 'Please enter a valid 6-digit pincode';
+            pincodeError.style.display = 'block';
+            document.getElementById('City').value = '';
+            document.getElementById('State').value = '';
+            return;
+        }
+
+        pincodeLoading.style.display = 'block';
+        pincodeError.style.display = 'none';
+
+        try {
+            // First check local database
+            if (pincodeDatabase[pincodeInput]) {
+                const cityData = pincodeDatabase[pincodeInput];
+                document.getElementById('City').value = cityData.city;
+                document.getElementById('State').value = cityData.state;
+                pincodeLoading.style.display = 'none';
+                pincodeError.style.display = 'none';
+                return;
+            }
+
+            // If not in local DB, try external API (PostalCodeAPI or similar)
+            const response = await fetch(`https://api.zippopotam.us/in/${pincodeInput}`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                const city = data.places[0]['place name'] || 'Unknown';
+                const state = data.places[0]['state abbreviation'] || 'Unknown';
+                document.getElementById('City').value = city;
+                document.getElementById('State').value = state;
+                pincodeError.style.display = 'none';
+            } else {
+                pincodeError.textContent = 'Pincode not found. Please enter city and state manually.';
+                pincodeError.style.display = 'block';
+                document.getElementById('City').value = '';
+                document.getElementById('State').value = '';
+            }
+        } catch (error) {
+            console.log('API call failed, using local database or manual entry:', error);
+            pincodeError.textContent = 'Unable to fetch city. Please enter manually.';
+            pincodeError.style.display = 'block';
+            document.getElementById('City').value = '';
+            document.getElementById('State').value = '';
+        } finally {
+            pincodeLoading.style.display = 'none';
+        }
+    }
+
+    function validateEmail(email) {
+        const emailError = document.getElementById('emailError');
+        const email_input = email.trim();
+
+        if (email_input.length === 0) {
+            emailError.style.display = 'none';
+            return true;
+        }
+
+        if (!email_input.endsWith('@gmail.com')) {
+            emailError.textContent = 'Email must end with @gmail.com';
+            emailError.style.display = 'block';
+            return false;
+        }
+
+        const emailPattern = /^[a-zA-Z0-9._-]+@gmail\.com$/;
+        if (!emailPattern.test(email_input)) {
+            emailError.textContent = 'Invalid email format';
+            emailError.style.display = 'block';
+            return false;
+        }
+
+        emailError.style.display = 'none';
+        return true;
+    }
+
+    function validatePhone(phone) {
+        const phoneError = document.getElementById('phoneError');
+        const phone_input = phone.trim();
+
+        if (phone_input.length === 0) {
+            phoneError.style.display = 'none';
+            return true;
+        }
+
+        if (!/^\d{10}$/.test(phone_input)) {
+            phoneError.textContent = 'Phone number must be exactly 10 digits';
+            phoneError.style.display = 'block';
+            return false;
+        }
+
+        phoneError.style.display = 'none';
+        return true;
+    }
+
+    async function registerDetails() {
+        const firstName = document.getElementById('First_name').value.trim();
+        const lastName = document.getElementById('Last_name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('Password').value.trim();
+        const phone = document.getElementById('Phone').value.trim();
+        const pincode = document.getElementById('Pincode').value.trim();
+        const state = document.getElementById('State').value.trim();
+        const city = document.getElementById('City').value.trim();
+        const addressLine = document.getElementById('Address_Line').value.trim();
+
+        // Validate email
+        if (!validateEmail(email)) {
+            alert('Please enter a valid email address ending with @gmail.com');
+            return;
+        }
+
+        // Validate phone
+        if (!validatePhone(phone)) {
+            alert('Please enter a valid 10-digit phone number');
+            return;
+        }
+
+        // Validate password requirements
+        const requirements = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /\d/.test(password),
+            special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+        };
+
+        if (!Object.values(requirements).every(Boolean)) {
+            alert('Password does not meet all requirements:\n- At least 8 characters\n- One uppercase letter\n- One lowercase letter\n- One number\n- One special character');
+            return;
+        }
+
+        if (!pincode || !/^\d{6}$/.test(pincode)) {
+            alert('Please enter a valid 6-digit pincode.');
+            return;
+        }
+
+        if (!city) {
+            alert('Please enter a city.');
+            return;
+        }
+
+        const data = {
+            First_name: firstName,
+            Last_name: lastName,
+            Email: email,
+            Password: password,
+            Phone: phone,
+            Pincode: pincode,
+            State: state,
+            City: city,
+            Address_Line: addressLine
+        };
+
+        try{
+            const response = await fetch('/user/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            console.log('Response from server:', result);
+
+            if(response.ok){
+                alert('Registration successful! Please login.');
+                window.location.href = '/user/login';
+            }else{
+                alert('Registration failed: ' + (result.error || 'Unknown error'));
+            }
+        }catch(error){
+            console.error('Error during registration request:', error);
+            alert('An error occurred during registration. Please try again.');
+        }
+    }
+</script>
+</html>

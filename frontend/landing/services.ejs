@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services - Civic Portal</title>
+    <link rel="stylesheet" href="/landing/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-city"></i>
+                <h1>WELCOME TO PORTAL</h1>
+            </div>
+            <nav class="nav">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/services" class="nav-link active">Services</a>
+                <a href="/about" class="nav-link">About</a>
+                <a href="/contact" class="nav-link">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Our Services</h2>
+                <p>Comprehensive digital solutions for modern governance</p>
+            </div>
+
+            <div class="features-grid">
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3>Issue Reporting</h3>
+                    <p>Report civic issues directly to authorities with photos, location, and detailed descriptions.</p>
+                    <ul class="feature-list">
+                        <li>Real-time tracking</li>
+                        <li>Photo attachments</li>
+                        <li>GPS location tagging</li>
+                        <li>Status updates</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h3>Complaint Management</h3>
+                    <p>Manage and track all citizen complaints with automated workflow and priority-based resolution.</p>
+                    <ul class="feature-list">
+                        <li>Complaint tracking</li>
+                        <li>Priority classification</li>
+                        <li>Assignment system</li>
+                        <li>Resolution timeline</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Worker Management</h3>
+                    <p>Organize and manage field teams with real-time location tracking and task assignment.</p>
+                    <ul class="feature-list">
+                        <li>Team organization</li>
+                        <li>Task scheduling</li>
+                        <li>Real-time tracking</li>
+                        <li>Performance metrics</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3>Secure Authentication</h3>
+                    <p>Multi-layer security with password encryption and role-based access control for all users.</p>
+                    <ul class="feature-list">
+                        <li>Encrypted passwords</li>
+                        <li>Role-based access</li>
+                        <li>Session management</li>
+                        <li>Security logs</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    <h3>AI Voice Assistant</h3>
+                    <p>Natural language processing powered voice assistant for accessibility and ease of use.</p>
+                    <ul class="feature-list">
+                        <li>Voice commands</li>
+                        <li>Multi-language support</li>
+                        <li>Form auto-filling</li>
+                        <li>Accessibility features</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3>Analytics Dashboard</h3>
+                    <p>Real-time analytics and reporting for municipalities to monitor service performance.</p>
+                    <ul class="feature-list">
+                        <li>Real-time statistics</li>
+                        <li>Custom reports</li>
+                        <li>Data visualization</li>
+                        <li>Export functionality</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Voice Assistant Widget -->
+    <div class="voice-assistant-widget" id="voiceAssistant">
+        <div class="voice-header" onclick="toggleVoiceAssistant()">
+            <i class="fas fa-microphone"></i>
+            <span>Voice Assistant</span>
+            <i class="fas fa-chevron-up" id="voiceToggle"></i>
+        </div>
+
+        <div class="voice-body" id="voiceBody">
+            <div class="voice-status">
+                <div class="status-indicator" id="statusIndicator">
+                    <i class="fas fa-microphone-slash"></i>
+                    <span id="voiceStatus">Click to activate voice assistant</span>
+                </div>
+            </div>
+
+            <div class="voice-transcript" id="voiceTranscript">
+                <div class="transcript-header">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>Live Transcript</span>
+                </div>
+                <div class="transcript-content" id="transcriptContent">
+                    <p class="placeholder-text">Voice transcript will appear here...</p>
+                </div>
+            </div>
+
+            <div class="voice-commands">
+                <div class="commands-header">
+                    <i class="fas fa-list"></i>
+                    <span>Try saying:</span>
+                </div>
+                <div class="command-list">
+                    <span class="command-item">"Show services"</span>
+                    <span class="command-item">"Tell me about features"</span>
+                    <span class="command-item">"Report an issue"</span>
+                    <span class="command-item">"Help me get started"</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    <div class="chatbot" id="chatbot">
+        <div class="chatbot-header" onclick="toggleChatbot()">
+            <i class="fas fa-comments"></i>
+            <span>Chat Support</span>
+            <i class="fas fa-chevron-up" id="chatbotToggle"></i>
+        </div>
+
+        <div class="chatbot-body" id="chatbotBody">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot-message">
+                    <i class="fas fa-robot"></i>
+                    <span>Hello! How can I help you today?</span>
+                </div>
+            </div>
+
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Type your message...">
+                <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Digital Government</h4>
+                    <p>Empowering citizens through digital transformation</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="/services">Services</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>support@civicportal.gov</p>
+                    <p>1-800-GOV-HELP</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="/landing/script.js"></script>
+</body>
+</html>

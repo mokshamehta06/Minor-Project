@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civic Portal - Digital Government Services</title>
+
+    <link rel="stylesheet" href="/landing/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-city"></i>
+                <h1>WELCOME TO PORTAL</h1>
+            </div>
+            <nav class="nav">
+                <a href="/" class="nav-link active">Home</a>
+                <a href="/services" class="nav-link">Services</a>
+                <a href="/about" class="nav-link">About</a>
+                <a href="/contact" class="nav-link">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- User Type Selection -->
+    <section class="user-selection" id="userSelection">
+        <div class="container">
+            <div class="selection-header">
+                <h2>Choose Your Portal</h2>
+                <p>Select your role to access personalized services and features</p>
+            </div>
+
+            <div class="user-cards">
+                <!-- CITIZEN -->
+                <div class="user-card" id="citizenCard">
+                    <div class="card-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3>As Citizen</h3>
+                    <p>Access personal services, documents, and civic information</p>
+
+                    <div class="card-features">
+                        <span><i class="fas fa-check"></i> Report Issues</span>
+                        <span><i class="fas fa-check"></i> Track Requests</span>
+                        <span><i class="fas fa-check"></i> Pay Bills</span>
+                        <span><i class="fas fa-check"></i> Voice Assistant</span>
+                    </div>
+
+                    <button class="btn-primary" onclick="redirectToPortal('citizen')">
+                        Enter Citizen Portal
+                    </button>
+                </div>
+
+                <!-- MUNICIPALITY -->
+                <div class="user-card" id="municipalityCard">
+                    <div class="card-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h3>As Municipality</h3>
+                    <p>Manage civic services, data, and administrative functions</p>
+
+                    <div class="card-features">
+                        <span><i class="fas fa-check"></i> Operations Dashboard</span>
+                        <span><i class="fas fa-check"></i> Ticket Management</span>
+                        <span><i class="fas fa-check"></i> Field Teams</span>
+                        <span><i class="fas fa-check"></i> Analytics</span>
+                    </div>
+
+                    <button class="btn-primary" onclick="redirectToPortal('municipality')">
+                        Enter Municipality Portal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Platform Features</h2>
+                <p>Comprehensive digital solutions for modern governance</p>
+            </div>
+
+            <div class="features-grid">
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    <h3>Voice Assistant</h3>
+                    <p>AI-powered voice commands for hands-free interaction and accessibility</p>
+                    <ul class="feature-list">
+                        <li>Natural language processing</li>
+                        <li>Multi-language support</li>
+                        <li>Accessibility features</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Real-time Analytics</h3>
+                    <p>Comprehensive dashboards and reporting for data-driven decisions</p>
+                    <ul class="feature-list">
+                        <li>Live performance metrics</li>
+                        <li>Predictive analytics</li>
+                        <li>Custom reporting</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Mobile Optimized</h3>
+                    <p>Responsive design ensuring seamless experience across all devices</p>
+                    <ul class="feature-list">
+                        <li>Progressive web app</li>
+                        <li>Offline capabilities</li>
+                        <li>Touch-friendly interface</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Voice Assistant Widget -->
+    <div class="voice-assistant-widget" id="voiceAssistant">
+        <div class="voice-header" onclick="toggleVoiceAssistant()">
+            <i class="fas fa-microphone"></i>
+            <span>Voice Assistant</span>
+            <i class="fas fa-chevron-up" id="voiceToggle"></i>
+        </div>
+
+        <div class="voice-body" id="voiceBody">
+            <div class="voice-status">
+                <div class="status-indicator" id="statusIndicator">
+                    <i class="fas fa-microphone-slash"></i>
+                    <span id="voiceStatus">Click to activate voice assistant</span>
+                </div>
+            </div>
+
+            <div class="voice-transcript" id="voiceTranscript">
+                <div class="transcript-header">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>Live Transcript</span>
+                </div>
+                <div class="transcript-content" id="transcriptContent">
+                    <p class="placeholder-text">Voice transcript will appear here...</p>
+                </div>
+            </div>
+
+            <div class="voice-commands">
+                <div class="commands-header">
+                    <i class="fas fa-list"></i>
+                    <span>Try saying:</span>
+                </div>
+                <div class="command-list">
+                    <span class="command-item">"Show citizen portal"</span>
+                    <span class="command-item">"Show municipality portal"</span>
+                    <span class="command-item">"Tell me about features"</span>
+                    <span class="command-item">"Help me get started"</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    <div class="chatbot" id="chatbot">
+        <div class="chatbot-header" onclick="toggleChatbot()">
+            <i class="fas fa-comments"></i>
+            <span>Chat Support</span>
+            <i class="fas fa-chevron-up" id="chatbotToggle"></i>
+        </div>
+
+        <div class="chatbot-body" id="chatbotBody">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot-message">
+                    <i class="fas fa-robot"></i>
+                    <span>Hello! How can I help you today?</span>
+                </div>
+            </div>
+
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Type your message...">
+                <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Digital Government</h4>
+                    <p>Empowering citizens through digital transformation</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="/services">Services</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>support@civicportal.gov</p>
+                    <p>1-800-GOV-HELP</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="/landing/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Portal - Municipal Services</title>
+    <link rel="stylesheet" href="/user/styles/citizen.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+</head>
+
+<body>
+    <header class="top-bar">
+        <div class="top-bar-left">
+            <div class="logo">
+                <i class="fas fa-city"></i>
+                <span>Citizen Portal</span>
+            </div>
+        </div>
+
+        </div>
+        <div class="top-bar-right">
+            <div class="language-switcher">
+                <select id="languageSelect">
+                    <option value="en">English</option>
+                    <option value="hi">हिन्दी</option>
+                </select>
+            </div>
+            <div class="notifications icon-btn" onclick="toggleNotifications()">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge">3</span>
+            </div>
+            <div class="profile-menu" onclick="toggleProfileMenu(event)">
+                <img src="https://via.placeholder.com/40x40/4F46E5/FFFFFF?text=JD" alt="Profile" class="profile-avatar">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="left-rail">
+            <div class="quick-actions">
+                <h3>Quick Actions</h3>
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="openReportIssue()">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Report Issue</span>
+                    </button>
+                    <button class="action-btn" onclick="openTrackComplaint()">
+                        <i class="fas fa-search"></i>
+                        <span>Track Complaint</span>
+                    </button>
+                    <!-- <button class="action-btn" onclick="openPayBill()">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Pay Bill</span>
+                    </button> -->
+                    <!-- <button class="action-btn" onclick="openRequestCertificate()">
+                        <i class="fas fa-certificate"></i>
+                        <span>Request Certificate</span>
+                    </button> -->
+                    <!-- <button class="action-btn" onclick="openBookAppointment()">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Book Appointment</span>
+                    </button> -->
+                </div>
+            </div>
+
+            <div class="voice-assistant">
+                <h4>Voice Assistant</h4>
+                <div class="voice-controls">
+                    <button class="mic-btn" id="micBtn" onclick="toggleVoiceRecording()" title="Click to speak">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <div class="voice-status">
+                        <span id="voiceStatus">Click to speak</span>
+                    </div>
+                    <button class="tts-toggle" onclick="toggleTTS()" title="Toggle voice output">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                    <button class="text-input-btn" onclick="showTextInputFallback()" title="Type message">
+                        <i class="fas fa-keyboard"></i>
+                    </button>
+                </div>
+                <div class="live-transcript" id="liveTranscript">
+                    <p>Voice transcript will appear here...</p>
+                </div>
+            </div>
+
+        </aside>
+
+        <main class="main-content">
+            <section class="smart-start">
+
+                <div class="personalized-cards">
+                    <div class="smart-card alert-card">
+                        <div class="card-header">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <h3>My Area Problems </h3>
+                        </div>
+                        <div class="card-content" id="area-problems-content">
+                            <div class="alert-item urgent">
+                                <span class="alert-dot"></span>
+                                <div>
+                                    <p>Water service interruption</p>
+                                    <small>Main St. - Today 2-6 PM</small>
+                                </div>
+                            </div>
+                            <div class="alert-item info">
+                                <span class="alert-dot"></span>
+                                <div>
+                                    <p>Road construction</p>
+                                    <small>Oak Ave. - Next week</small>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="fetch-problems-btn" onclick="fetchAreaProblems()"
+                            style="margin-top: 1rem; padding: 10px 20px; background: var(--primary-blue); color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: 500; transition: all 0.3s ease;">
+                            <i class="fas fa-sync-alt"></i> <span>View More Problems of your area</span>
+                        </button>
+                        <button class="collapse-problems-btn" onclick="collapseAreaProblems()"
+                            style="margin-top: 0.5rem; padding: 8px 18px; background: #e2e8f0; color: #1e293b; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: 500; transition: all 0.3s ease; display: none;">
+                            <i class="fas fa-angle-up"></i> <span>View Less</span>
+                        </button>
+                    </div>
+
+                    <div class="smart-card bills-card">
+                        <div class="card-header">
+                            <i class="fas fa-chart-line"></i>
+                            <h3>Quick Stats</h3>
+                        </div>
+                        <div class="card-content" id="quick-stats-content">
+                            <div class="stat-item"
+                                style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #e2e8f0;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div
+                                        style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #60a5fa); display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-exclamation-circle"
+                                            style="color: white; font-size: 1.2rem;"></i>
+                                    </div>
+                                    <div>
+                                        <p style="margin: 0; font-weight: 600; color: #1e293b;">Total Complaints</p>
+                                        <small style="color: #64748b;">All time</small>
+                                    </div>
+                                </div>
+                                <span style="font-size: 1.5rem; font-weight: 700; color: #3b82f6;"
+                                    id="total-complaints">0</span>
+                            </div>
+                            <div class="stat-item"
+                                style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #e2e8f0;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div
+                                        style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #fbbf24); display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-clock" style="color: white; font-size: 1.2rem;"></i>
+                                    </div>
+                                    <div>
+                                        <p style="margin: 0; font-weight: 600; color: #1e293b;">Pending</p>
+                                        <small style="color: #64748b;">Awaiting action</small>
+                                    </div>
+                                </div>
+                                <span style="font-size: 1.5rem; font-weight: 700; color: #f59e0b;"
+                                    id="pending-complaints">0</span>
+                            </div>
+                            <div class="stat-item"
+                                style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #e2e8f0;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div
+                                        style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #a78bfa); display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-spinner" style="color: white; font-size: 1.2rem;"></i>
+                                    </div>
+                                    <div>
+                                        <p style="margin: 0; font-weight: 600; color: #1e293b;">In Progress</p>
+                                        <small style="color: #64748b;">Being worked on</small>
+                                    </div>
+                                </div>
+                                <span style="font-size: 1.5rem; font-weight: 700; color: #8b5cf6;"
+                                    id="inprogress-complaints">0</span>
+                            </div>
+                            <div class="stat-item"
+                                style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div
+                                        style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #34d399); display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-check-circle" style="color: white; font-size: 1.2rem;"></i>
+                                    </div>
+                                    <div>
+                                        <p style="margin: 0; font-weight: 600; color: #1e293b;">Resolved</p>
+                                        <small style="color: #64748b;">Completed</small>
+                                    </div>
+                                </div>
+                                <span style="font-size: 1.5rem; font-weight: 700; color: #10b981;"
+                                    id="resolved-complaints">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="smart-card requests-card">
+                        <div class="card-header">
+                            <i class="fas fa-clipboard-list"></i>
+                            <h3>My Recent Complaints</h3>
+                        </div>
+                        <div class="card-content">
+                            <p style="color: #64748b;">Loading complaints...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- My Complaints Section -->
+            <section class="my-complaints-section" style="margin-top: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="color: var(--dark-blue); font-size: 1.5rem;">All My Complaints</h2>
+                    <button onclick="openTrackComplaint()"
+                        style="padding: 0.5rem 1rem; background: var(--primary-blue); color: white; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-list"></i> View All
+                    </button>
+                </div>
+                <div id="all-complaints-container"
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+                    <!-- Complaints will be loaded here -->
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="modalOverlay" class="modal-overlay" onclick="closeModal()"></div>
+
+
+    <!-- Notifications Panel -->
+    <div id="notificationsPanel" class="notifications-panel">
+        <div class="panel-header">
+            <h3>Notifications</h3>
+            <button onclick="toggleNotifications()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="notifications-list" id="notificationsList">
+            <p style="text-align: center; padding: 2rem; color: #64748b;">Loading notifications...</p>
+        </div>
+    </div>
+
+    <div id="profileMenu" class="profile-menu-dropdown">
+        <a href="#" onclick="openMyProfile(event)"><i class="fas fa-user"></i> My Profile</a>
+
+        <a href="#" onclick="openSettingsModal()"><i class="fas fa-cog"></i> Settings</a>
+
+        <a href="#" onclick="openActivityreport(event)"><i class="fas fa-history"></i> Activity History</a>
+        <a href="#" onclick="openhelp(event)"><i class="fas fa-question-circle"></i> Help & Support</a>
+        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <!-- Help & Support Modal -->
+    <div id="help-modal" class="modal">
+        <span class="close-btn" onclick="closehelp()">&times;</span>
+        <h3 style="margin-bottom: 20px; color: #1e3a8a;">Help & Support</h3>
+
+        <div style="max-height: 400px; overflow-y: auto;">
+            <div style="margin-bottom: 20px;">
+                <h4 style="color: #4F46E5; margin-bottom: 10px;"><i class="fas fa-question-circle"></i> Frequently Asked
+                    Questions</h4>
+
+                <div
+                    style="margin-bottom: 15px; padding: 15px; background: #f8fafc; border-radius: 8px; border-left: 3px solid #4F46E5;">
+                    <strong style="color: #1e3a8a;">Q: How do I report an issue?</strong>
+                    <p style="margin-top: 5px; color: #475569;">Click the "Report Issue" button, select category and
+                        department, describe your issue, optionally add a photo, and submit.</p>
+                </div>
+
+                <div
+                    style="margin-bottom: 15px; padding: 15px; background: #f8fafc; border-radius: 8px; border-left: 3px solid #4F46E5;">
+                    <strong style="color: #1e3a8a;">Q: How can I track my complaints?</strong>
+                    <p style="margin-top: 5px; color: #475569;">Click "Track Complaint" to view all your complaints with
+                        their current status (Pending, In-Progress, or Resolved).</p>
+                </div>
+
+                <div
+                    style="margin-bottom: 15px; padding: 15px; background: #f8fafc; border-radius: 8px; border-left: 3px solid #4F46E5;">
+                    <strong style="color: #1e3a8a;">Q: What do the different statuses mean?</strong>
+                    <p style="margin-top: 5px; color: #475569;">
+                        <strong>Reported:</strong> Your complaint has been submitted<br>
+                        <strong>In-Progress:</strong> A worker has been assigned and is working on it<br>
+                        <strong>Resolved:</strong> The issue has been fixed
+                    </p>
+                </div>
+
+                <div
+                    style="margin-bottom: 15px; padding: 15px; background: #f8fafc; border-radius: 8px; border-left: 3px solid #4F46E5;">
+                    <strong style="color: #1e3a8a;">Q: Can I see who is working on my complaint?</strong>
+                    <p style="margin-top: 5px; color: #475569;">Yes! When your complaint is "In-Progress", you'll see
+                        the assigned worker's name, phone number, and assignment date in the Track Complaint modal.</p>
+                </div>
+
+                <div
+                    style="margin-bottom: 15px; padding: 15px; background: #f8fafc; border-radius: 8px; border-left: 3px solid #4F46E5;">
+                    <strong style="color: #1e3a8a;">Q: How do I use the Voice Assistant?</strong>
+                    <p style="margin-top: 5px; color: #475569;">Click the microphone icon to speak or use the keyboard
+                        icon to type your questions. The AI assistant can help you navigate the portal in Hindi or
+                        English.</p>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h4 style="color: #4F46E5; margin-bottom: 10px;"><i class="fas fa-phone"></i> Contact Support</h4>
+                <div style="padding: 15px; background: #f0fdf4; border-radius: 8px; border-left: 3px solid #10b981;">
+                    <p style="margin-bottom: 8px;"><strong>Email:</strong> support@imitra.gov.in</p>
+                    <p style="margin-bottom: 8px;"><strong>Phone:</strong> 1800-123-4567 (Toll Free)</p>
+                    <p style="margin-bottom: 8px;"><strong>Hours:</strong> Monday - Friday, 9:00 AM - 6:00 PM</p>
+                </div>
+            </div>
+
+            <div>
+                <h4 style="color: #4F46E5; margin-bottom: 10px;"><i class="fas fa-book"></i> Quick Tips</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">
+                        <i class="fas fa-check-circle" style="color: #10b981;"></i> Add photos to your complaints for
+                        faster resolution
+                    </li>
+                    <li style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">
+                        <i class="fas fa-check-circle" style="color: #10b981;"></i> Check Quick Stats to see your
+                        complaint summary
+                    </li>
+                    <li style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">
+                        <i class="fas fa-check-circle" style="color: #10b981;"></i> Use filters in Track Complaint to
+                        find specific complaints
+                    </li>
+                    <li style="padding: 8px 0;">
+                        <i class="fas fa-check-circle" style="color: #10b981;"></i> Rate workers after resolution to
+                        help improve service
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Profile Modal -->
+    <div id="profile-modal" class="modal">
+        <span class="close-btn" onclick="closeMyProfile()">&times;</span>
+        <h3 style="margin-bottom: 20px; color: #1e3a8a;"><i class="fas fa-user-circle"></i> My Profile</h3>
+
+        <div id="profile-content" style="max-height: 400px; overflow-y: auto;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 40px; color: white; font-weight: bold;"
+                    id="profile-avatar-large">
+                    JD
+                </div>
+                <h4 style="margin-top: 15px; color: #1e3a8a;" id="profile-name">Loading...</h4>
+                <p style="color: #64748b; font-size: 0.9rem;" id="profile-email">Loading...</p>
+            </div>
+
+            <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="color: #4F46E5; margin-bottom: 15px;"><i class="fas fa-info-circle"></i> Personal Information
+                </h4>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label style="font-size: 0.85rem; color: #64748b; display: block; margin-bottom: 5px;">First
+                            Name</label>
+                        <p style="font-weight: 500; color: #1e3a8a;" id="profile-firstname">-</p>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85rem; color: #64748b; display: block; margin-bottom: 5px;">Last
+                            Name</label>
+                        <p style="font-weight: 500; color: #1e3a8a;" id="profile-lastname">-</p>
+                    </div>
+                    <div>
+                        <label
+                            style="font-size: 0.85rem; color: #64748b; display: block; margin-bottom: 5px;">Phone</label>
+                        <p style="font-weight: 500; color: #1e3a8a;" id="profile-phone">-</p>
+                    </div>
+                    <div>
+                        <label
+                            style="font-size: 0.85rem; color: #64748b; display: block; margin-bottom: 5px;">Pincode</label>
+                        <p style="font-weight: 500; color: #1e3a8a;" id="profile-pincode">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="color: #4F46E5; margin-bottom: 15px;"><i class="fas fa-map-marker-alt"></i> Address</h4>
+                <p style="color: #1e3a8a; line-height: 1.6;" id="profile-address">Loading...</p>
+            </div>
+
+            <div
+                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 8px; color: white;">
+                <h4 style="margin-bottom: 15px;"><i class="fas fa-chart-bar"></i> My Statistics</h4>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; text-align: center;">
+                    <div>
+                        <div style="font-size: 1.8rem; font-weight: bold;" id="profile-stat-total">0</div>
+                        <div style="font-size: 0.85rem; opacity: 0.9;">Total</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 1.8rem; font-weight: bold;" id="profile-stat-pending">0</div>
+                        <div style="font-size: 0.85rem; opacity: 0.9;">Pending</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 1.8rem; font-weight: bold;" id="profile-stat-resolved">0</div>
+                        <div style="font-size: 0.85rem; opacity: 0.9;">Resolved</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity History Modal -->
+    <div id="activity-modal" class="modal">
+        <span class="close-btn" onclick="closeActivityreport()">&times;</span>
+        <h3 style="margin-bottom: 20px; color: #1e3a8a;"><i class="fas fa-history"></i> Activity History</h3>
+
+        <div id="activity-content" style="max-height: 400px; overflow-y: auto;">
+            <div style="text-align: center; padding: 40px 20px; color: #64748b;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                <p>Loading activity history...</p>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div id="settings-modal" class="modal">
+        <span class="close-btn" onclick="closeSettingsModal()">&times;</span>
+        <h3 style="margin-bottom: 20px; color: #1e3a8a;">Settings</h3>
+
+        <div class="accessibility-controls" style="border: none; padding: 0; box-shadow: none;">
+            <h4>Accessibility</h4>
+            <div class="control-group">
+                <button class="accessibility-btn" onclick="toggleHighContrast()">
+                    <i class="fas fa-adjust"></i>
+                    High Contrast
+                </button>
+                <button class="accessibility-btn" onclick="increaseTextSize()">
+                    <i class="fas fa-text-height"></i>
+                    Text Size +
+                </button>
+                <button class="accessibility-btn" onclick="toggleScreenReader()">
+                    <i class="fas fa-eye"></i>
+                    Screen Reader
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="report-issue-modal" class="modal">
+        <form id="report-issue-form" class="modal-form" enctype="multipart/form-data" method="POST"
+            action="/user/registerComplain">
+
+            <span class="close-btn" onclick="closeReportModal()">&times;</span>
+            <h3 style="margin-bottom: 20px; color: #1e3a8a;">Report an Issue</h3>
+
+            <!-- Category -->
+            <label for="issue-category">Category *</label>
+            <select id="issue-category" name="category" required>
+                <option value="">Select Category</option>
+                <option value="Water Supply">Water Supply</option>
+                <option value="Electricity">Electricity</option>
+                <option value="Road Maintenance">Road Maintenance</option>
+                <option value="Sanitation">Sanitation</option>
+                <option value="Public Safety">Public Safety</option>
+            </select>
+
+            <!-- Department -->
+            <label for="issue-department">Department *</label>
+            <select id="issue-department" name="department" required>
+                <option value="">Select Department</option>
+                <option value="Water Supply">Water Supply</option>
+                <option value="Electricity">Electricity</option>
+                <option value="Road Maintenance">Road Maintenance</option>
+                <option value="Public Health">Public Health</option>
+                <option value="Sanitation">Sanitation</option>
+            </select>
+
+            <!-- Description -->
+            <label for="issue-description">Description *</label>
+            <textarea id="issue-description" name="description" required rows="4"></textarea>
+
+            <!-- REAL-TIME CAMERA CAPTURE -->
+            <label>Take Photo </label>
+
+            <video id="cameraPreview" autoplay playsinline
+                style="width:100%; border-radius:8px; display:none; margin-bottom:10px;">
+            </video>
+
+            <canvas id="capturedImage" style="display:none;"></canvas>
+
+            <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
+                <button type="button" onclick="startCamera()" id="openCamBtn">Open Camera</button>
+                <button type="button" onclick="capturePhoto()" id="captureBtn" style="display:none;">Capture</button>
+                <p id="location-display" style="margin:0; font-size:0.9rem; color:#475569; display:none;">
+                    <i class="fas fa-map-marker-alt"></i> <span id="loc-text">Fetching location...</span>
+                </p>
+            </div>
+
+            <!-- Hidden input to store base64 image -->
+            <input type="hidden" id="issue-photo" name="issuePhoto">
+            <!-- Hidden inputs to store captured photo geolocation -->
+            <input type="hidden" id="photo-lat" name="latitude">
+            <input type="hidden" id="photo-lng" name="longitude">
+            <!-- Hidden input to indicate whether the captured image contains a human face -->
+            <input type="hidden" id="photo-has-face" name="hasFace">
+
+            <!-- Pincode -->
+            <label for="issue-pincode">Pincode *</label>
+            <input type="text" id="issue-pincode" name="Pincode" required value="<%= user.Pincode %>">
+
+            <!-- State -->
+            <label for="issue-state">State *</label>
+            <input type="text" id="issue-state" name="State" required value="<%= user.State %>">
+
+            <!-- City -->
+            <label for="issue-city">City *</label>
+            <input type="text" id="issue-city" name="City" required value="<%= user.City %>">
+
+            <!-- Address -->
+            <label for="issue-address">Address Line (Optional)</label>
+            <input type="text" id="issue-address" name="Address_Line" value="<%= user.Address_Line || '' %>">
+
+            <!-- Submit -->
+            <button type="button" id="submit-complaint-btn" onclick="submitComplaint(event)">
+                Submit Complaint
+            </button>
+
+        </form>
+    </div>
+
+    <script src="/user/js/citizen.js"></script>
+    <script>
+        let stream;
+
+        // Start live camera
+        // Start live camera
+        async function startCamera() {
+            const video = document.getElementById("cameraPreview");
+            const captureBtn = document.getElementById("captureBtn");
+            const locDisplay = document.getElementById("location-display");
+            const locText = document.getElementById("loc-text");
+
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                video.style.display = "block";
+                captureBtn.style.display = "inline-block";
+
+                // Start fetching location immediately when camera opens
+                if (navigator.geolocation) {
+                    locDisplay.style.display = "inline-block";
+                    locText.textContent = "Locating...";
+
+                    navigator.geolocation.getCurrentPosition((pos) => {
+                        const lat = pos.coords.latitude.toFixed(6);
+                        const lng = pos.coords.longitude.toFixed(6);
+                        locText.textContent = `${lat}, ${lng}`;
+
+                        // Also pre-fill hidden inputs if available
+                        const latInput = document.getElementById('photo-lat');
+                        const lngInput = document.getElementById('photo-lng');
+                        if (latInput) latInput.value = pos.coords.latitude;
+                        if (lngInput) lngInput.value = pos.coords.longitude;
+                    }, (err) => {
+                        locText.textContent = "Location unavailable";
+                    }, { enableHighAccuracy: true });
+                }
+            } catch (err) {
+                alert("Camera access denied or unavailable");
+            }
+        }
+
+        // Capture photo
+        function capturePhoto() {
+            const video = document.getElementById("cameraPreview");
+            const canvas = document.getElementById("capturedImage");
+            const hiddenInput = document.getElementById("issue-photo");
+
+            const latInput = document.getElementById('photo-lat');
+            const lngInput = document.getElementById('photo-lng');
+            const locText = document.getElementById("loc-text"); // Get text element
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(video, 0, 0);
+
+            const base64Image = canvas.toDataURL("image/jpeg");
+            hiddenInput.value = base64Image;
+
+            // Try to get geolocation when photo is captured
+            if (navigator.geolocation) {
+                // Use high accuracy if available; short timeout to avoid blocking too long
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    if (latInput) latInput.value = position.coords.latitude || '';
+                    if (lngInput) lngInput.value = position.coords.longitude || '';
+
+                    // Update display text on capture to confirm what was saved
+                    const lat = position.coords.latitude.toFixed(6);
+                    const lng = position.coords.longitude.toFixed(6);
+                    if (locText) locText.textContent = `${lat}, ${lng}`;
+
+                    console.log('Captured location:', position.coords.latitude, position.coords.longitude);
+                }, function (err) {
+                    console.warn('Geolocation error or denied:', err.message);
+                    if (latInput) latInput.value = '';
+                    if (lngInput) lngInput.value = '';
+                    if (locText) locText.textContent = "Location not saved";
+                }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 });
+            } else {
+                if (latInput) latInput.value = '';
+                if (lngInput) lngInput.value = '';
+            }
+
+            // Detect face in the captured image (if supported by browser)
+            try {
+                const faceInput = document.getElementById('photo-has-face');
+                if ('FaceDetector' in window) {
+                    // Use the native FaceDetector API when available
+                    createImageBitmap(canvas).then(bitmap => {
+                        const detector = new FaceDetector({ fastMode: true, maxDetectedFaces: 1 });
+                        detector.detect(bitmap).then(faces => {
+                            const hasFace = Array.isArray(faces) && faces.length > 0;
+                            if (faceInput) faceInput.value = hasFace ? 'true' : 'false';
+                            console.log('FaceDetector result:', hasFace);
+                        }).catch(err => {
+                            console.warn('FaceDetector detection failed:', err);
+                            if (faceInput) faceInput.value = '';
+                        });
+                    }).catch(err => {
+                        console.warn('createImageBitmap failed:', err);
+                        if (faceInput) faceInput.value = '';
+                    });
+                } else {
+                    // Fallback: not supported — leave value empty so backend can decide
+                    if (faceInput) faceInput.value = '';
+                    console.log('FaceDetector API not supported in this browser');
+                }
+            } catch (e) {
+                console.warn('Face detection error:', e);
+            }
+
+            // stop camera
+            if (stream) stream.getTracks().forEach(track => track.stop());
+
+            alert("Photo Captured!");
+        }
+
+    </script>
+
+    <!-- AI Chatbot Widget -->
+    <script src="/js/aiChatbot.js"></script>
+
+</body>
+
+</html>
